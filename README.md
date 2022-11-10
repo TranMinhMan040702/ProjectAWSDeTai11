@@ -6,11 +6,11 @@
 - Tương tác dữ liệu của table thông qua API được cung cấp
 
 ## Công nghệ sử dụng
-Client: Html, Css3, Bootstrap, JS
-Server: PHP, AWS Lambda, AWS SQS, AWS EC2
-Database: DynamoDB
+Client: Html, Css3, Bootstrap, JS <br>
+Server: PHP, AWS Lambda, AWS SQS, AWS EC2 <br>
+Database: DynamoDB <br>
 
 ## Thành viên tham gia Project
-Lê Hải Đăng - 20110243
-Trần Minh Mẫn - 20110301
-Trần Công Minh - 20110677
+Lê Hải Đăng - 20110243 <br>
+Trần Minh Mẫn - 20110301 <br>
+Trần Công Minh - 20110677 <br>
