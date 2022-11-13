@@ -8,24 +8,20 @@ export default function HomePageIndex() {
   });
   const login = (e) => {
     e.preventDefault();
-    Axios.post(process.env.REACT_APP_LOGIN, {
-      username: account.username,
-      password: account.password,
-    })
+    Axios.get(`${process.env.REACT_APP_LOGIN}?username=${account.username}`)
       .then((rs) => {
-        console.log(rs.data);
-        // if (rs.data.password == account.password) {
-        //   if (rs.data.username == "admin@admin") {
-        //     localStorage.setItem("role", "admin");
-        //     window.location.href = "admin";
-        //   } else {
-        //     localStorage.setItem("role", "user");
-        //     window.location.href = "user";
-        //   }
-        // } else {
-        //   alert("Sai mật khẩu");
-        //   // window.location.reload(true);
-        // }
+        if (rs.data.password == account.password) {
+          if (rs.data.username == "admin@admin") {
+            localStorage.setItem("role", "admin");
+            window.location.href = "admin";
+          } else {
+            localStorage.setItem("role", "user");
+            window.location.href = "user";
+          }
+        } else {
+          alert("Sai mật khẩu");
+          // window.location.reload(true);
+        }
       })
       .catch((err) => console.log(err));
   };
@@ -49,15 +45,6 @@ export default function HomePageIndex() {
                     style={{ width: "300px", marginRight: "10px" }}
                   >
                     Đăng nhập
-                  </a>
-                  <a
-                    href="#signupEmployeeModal"
-                    data-bs-toggle="modal"
-                    data-bs-target="#signupEmployeeModal"
-                    class="btn btn-primary fs-3"
-                    style={{ width: "300px" }}
-                  >
-                    Đăng ký
                   </a>
                 </div>
                 <a
@@ -131,83 +118,6 @@ export default function HomePageIndex() {
                     class="btn btn-success"
                     data-bs-dismiss="modal"
                   >
-                    Đăng nhập
-                  </button>
-                </div>
-              </form>
-            </div>
-          </div>
-        </div>
-
-        {/* <!-- MODAL ĐĂNG KÝ --> */}
-        <div
-          class="modal fade"
-          id="signupEmployeeModal"
-          tabindex="-1"
-          aria-labelledby="exampleModalLabel"
-          aria-hidden="true"
-        >
-          <div class="modal-dialog modal-dialog-centered">
-            <div class="modal-content">
-              <div class="modal-header">
-                <h1 class="modal-title fs-5" id="exampleModalLabel">
-                  Đăng ký
-                </h1>
-                <button
-                  type="button"
-                  class="btn-close"
-                  data-bs-dismiss="modal"
-                  aria-label="Close"
-                ></button>
-              </div>
-              <form>
-                <div class="modal-body">
-                  <div class="mb-3">
-                    <label class="form-label">Họ và tên</label>
-                    <input type="text" class="form-control" required></input>
-                  </div>
-                  <div class="mb-3">
-                    <label class="form-label">Email</label>
-                    <input type="email" class="form-control" required></input>
-                  </div>
-                  <div class="mb-3">
-                    <label class="form-label">Địa chỉ</label>
-                    <input type="text" class="form-control" required></input>
-                  </div>
-                  <div class="mb-3">
-                    <label class="form-label">Số điện thoại</label>
-                    <input type="tel" class="form-control" required></input>
-                  </div>
-                  <div class="mb-3">
-                    <label class="form-label">Tên đăng nhập:</label>
-                    <input type="text" class="form-control" required></input>
-                  </div>
-                  <div class="mb-3">
-                    <label class="form-label">Mật khẩu:</label>
-                    <input
-                      type="password"
-                      class="form-control"
-                      required
-                    ></input>
-                  </div>
-                  <div class="mb-3">
-                    <label class="form-label">Nhập lại mật khẩu:</label>
-                    <input
-                      type="password"
-                      class="form-control"
-                      required
-                    ></input>
-                  </div>
-                </div>
-                <div class="modal-footer">
-                  <button
-                    type="button"
-                    class="btn btn-secondary"
-                    data-bs-dismiss="modal"
-                  >
-                    Huỷ
-                  </button>
-                  <button type="submit" class="btn btn-success">
                     Đăng nhập
                   </button>
                 </div>

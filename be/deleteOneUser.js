@@ -2,7 +2,7 @@ const AWS = require("aws-sdk");
 const ddb = new AWS.DynamoDB.DocumentClient({ region: "us-east-1" });
 
 exports.handler = async (event, context, callback) => {
-  await login(event)
+  await deleteOneUser(event)
     .then((data) => {
       callback(null, {
         statusCode: 200,
@@ -13,11 +13,17 @@ exports.handler = async (event, context, callback) => {
       console.error(err);
     });
 };
-
-function login(event) {
+function deleteOneUser(event) {
   const params = {
-    TableName: "account",
-    Key: { username: event.queryStringParameters.username },
+    Key: {
+      username: event.queryStringParameters.username,
+    },
+    TableName: "users",
+    UpdateExpression: "SET isDelete = :isDelete",
+    ExpressionAttributeValues: {
+      ":isDelete": "false",
+    },
+    ReturnValues: "ALL_NEW",
   };
-  return ddb.get(params).promise();
+  return ddb.update(params).promise();
 }
