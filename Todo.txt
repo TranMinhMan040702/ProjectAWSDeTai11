@@ -1,0 +1,6 @@
+1. Thiết lại db (thêm khu vực)
+2. Thiết kế giao diện cho người quản lý (Form Đăng nhập có thêm dropdown (set cứng)) -> BE: Lấy ra list khu vực.
+
+
+
+Một khu vực có nhiều nhân viên quản lý

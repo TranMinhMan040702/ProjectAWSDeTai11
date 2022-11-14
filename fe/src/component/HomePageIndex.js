@@ -2,6 +2,7 @@ import React from "react";
 import bg from "../img/carousel-1.jpg";
 import Axios from "axios";
 export default function HomePageIndex() {
+  const [role, setRole] = React.useState("");
   const [account, setAccount] = React.useState({
     username: "",
     password: "",
@@ -80,47 +81,86 @@ export default function HomePageIndex() {
               </div>
               <form onSubmit={(e) => login(e)}>
                 <div class="modal-body">
-                  <div class="mb-3">
-                    <label class="form-label">Tên đăng nhập:</label>
-                    <input
-                      type="text"
-                      class="form-control"
-                      required
-                      value={account.username}
-                      onChange={(e) =>
-                        setAccount({ ...account, username: e.target.value })
-                      }
-                    ></input>
+                  <div class="mb-3 d-flex justify-content-around">
+                    <label class="form-check-label">
+                      <input
+                        type="radio"
+                        class="form-check-input me-1"
+                        name="role"
+                        value="user"
+                        onClick={(e) => setRole(e.target.value)}
+                      ></input>
+                      Nhân viên quản lý
+                    </label>
+                    <label class="form-check-label">
+                      <input
+                        type="radio"
+                        class="form-check-input me-1"
+                        name="role"
+                        value="admin"
+                        onClick={(e) => setRole(e.target.value)}
+                      ></input>
+                      Admin
+                    </label>
                   </div>
-                  <div class="mb-3">
-                    <label class="form-label">Mật khẩu:</label>
-                    <input
-                      type="password"
-                      class="form-control"
-                      required
-                      value={account.password}
-                      onChange={(e) =>
-                        setAccount({ ...account, password: e.target.value })
-                      }
-                    ></input>
+                  {role != "" && (
+                    <>
+                      <div class="mb-3">
+                        <label class="form-label">Tên đăng nhập:</label>
+                        <input
+                          type="text"
+                          class="form-control"
+                          required
+                          value={account.username}
+                          onChange={(e) =>
+                            setAccount({ ...account, username: e.target.value })
+                          }
+                        ></input>
+                      </div>
+                      <div class="mb-3">
+                        <label class="form-label">Mật khẩu:</label>
+                        <input
+                          type="password"
+                          class="form-control"
+                          required
+                          value={account.password}
+                          onChange={(e) =>
+                            setAccount({ ...account, password: e.target.value })
+                          }
+                        ></input>
+                      </div>
+                      {role == "user" && (
+                        <div class="mb-3">
+                          <label class="form-label">Chọn khu vực:</label>
+                          <select className="form-control">
+                            <option value="">Choose...</option>
+                            <option value="">A</option>
+                            <option value="">B</option>
+                            <option value="">C</option>
+                          </select>
+                        </div>
+                      )}
+                    </>
+                  )}
+                </div>
+                {role != "" && (
+                  <div class="modal-footer">
+                    <button
+                      type="button"
+                      class="btn btn-secondary"
+                      data-bs-dismiss="modal"
+                    >
+                      Huỷ
+                    </button>
+                    <button
+                      type="submit"
+                      class="btn btn-success"
+                      data-bs-dismiss="modal"
+                    >
+                      Đăng nhập
+                    </button>
                   </div>
-                </div>
-                <div class="modal-footer">
-                  <button
-                    type="button"
-                    class="btn btn-secondary"
-                    data-bs-dismiss="modal"
-                  >
-                    Huỷ
-                  </button>
-                  <button
-                    type="submit"
-                    class="btn btn-success"
-                    data-bs-dismiss="modal"
-                  >
-                    Đăng nhập
-                  </button>
-                </div>
+                )}
               </form>
             </div>
           </div>
