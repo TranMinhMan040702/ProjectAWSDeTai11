@@ -1,41 +1,39 @@
 import React from "react";
-import $ from "jquery";
-import Axios from "axios";
 import Header from "../Header";
-export default function HomePage() {
+import $ from "jquery";
+import { v4 as uuid } from "uuid";
+import Axios from "axios";
+
+export default function Area() {
   const selectAll = () => {
     return $("#selectAll").prop("checked")
       ? $(".checkItem").prop("checked", true)
       : $(".checkItem").prop("checked", false);
   };
   const selectItem = () => {
-    $('input[id*="selectItem"]:checked').length == 2 //tam thoi
+    $('input[id*="selectItem"]:checked').length ==
+    listAreas.filter((item) => item.isDeleted == "false").length //tam thoi
       ? $("#selectAll").prop("checked", true)
       : $("#selectAll").prop("checked", false);
   };
-  const [currentUsername, setCurrentUsername] = React.useState("");
-  const [checked, setChecked] = React.useState(true);
-  const [listUser, setListUser] = React.useState([]);
-  const [newUser, setNewUser] = React.useState({
-    name: "",
-    email: "",
+  const [currentId, setCurrentId] = React.useState("");
+  const [listAreas, setListAreas] = React.useState([]);
+  const [newArea, setNewArea] = React.useState({
+    nameArea: "",
     address: "",
-    phone: "",
   });
+  const [checked, setChecked] = React.useState(true);
   React.useEffect(() => {
-    const GETALLUSER = process.env.REACT_APP_GETALLUSER;
-    Axios.get(GETALLUSER).then((rs) => setListUser(rs.data));
+    Axios.get(process.env.REACT_APP_GETALLAREA).then((rs) =>
+      setListAreas(rs.data)
+    );
   }, [checked]);
-  const handleChange = (e) => {
-    setNewUser({ ...newUser, [e.target.name]: e.target.value });
-  };
   const Add = (e) => {
     e.preventDefault();
-    const username = newUser.name + Math.round(1000 + Math.random() * 9000);
-    const password = Math.round(10000 + Math.random() * 90000);
-    const isDelete = true;
+    const id = uuid();
+    const isDeleted = false;
     Axios.get(
-      `${process.env.REACT_APP_ADDUSER}?name=${newUser.name}&email=${newUser.email}&address=${newUser.address}&phone=${newUser.phone}&isDelete=${isDelete}&username=${username}&password=${password}`
+      `${process.env.REACT_APP_ADDAREA}?address=${newArea.address}&nameArea=${newArea.nameArea}&id=${id}&isDeleted=${isDeleted}`
     )
       .then((rs) => {
         setChecked((prev) => (prev = !prev));
@@ -44,16 +42,35 @@ export default function HomePage() {
   };
   const DeleteOne = (e) => {
     e.preventDefault();
-    Axios.get(
-      `${process.env.REACT_APP_DELETEONEUSER}?username=${currentUsername}`
-    )
+    Axios.get(`${process.env.REACT_APP_DELETEONEAREA}?id=${currentId}`)
       .then((rs) => {
-        console.log(rs);
         setChecked((prev) => (prev = !prev));
       })
       .catch((err) => console.log(err));
   };
+  const Update = (e) => {
+    e.preventDefault();
+    Axios.get(
+      `${process.env.REACT_APP_UPDATEAREA}?id=${currentId}&nameArea=${newArea.nameArea}&address=${newArea.address}`
+    )
+      .then((rs) => {
+        setChecked((prev) => (prev = !prev));
+      })
+      .catch((err) => console.log(err));
+  };
+  const ClickPencil = (id) => {
+    setCurrentId(id);
+    Axios.get(`${process.env.REACT_APP_GETONEAREABYID}?id=${id}`).then((rs) => {
+      setNewArea({
+        nameArea: rs.data.nameArea,
+        address: rs.data.address,
+      });
+    });
+  };
 
+  const DeleteMany = () => {
+    console.log($("input[id*='selectItem']:checked"));
+  };
   return (
     <>
       <Header />
@@ -64,7 +81,7 @@ export default function HomePage() {
               <div class="table-title">
                 <div class="row">
                   <div class="col-sm-6">
-                    <h2>QUẢN LÝ NHÂN VIÊN</h2>
+                    <h2>QUẢN LÝ KHU VỰC</h2>
                   </div>
                   <div class="col-sm-6">
                     <a
@@ -81,6 +98,7 @@ export default function HomePage() {
                       class="btn btn-danger"
                       data-bs-toggle="modal"
                       data-bs-target="#deleteEmployeeModal"
+                      onClick={DeleteMany}
                     >
                       <i class="material-icons">&#xE15C;</i>
                       <span>Xoá nhiều</span>
@@ -101,20 +119,14 @@ export default function HomePage() {
                         <label></label>
                       </span>
                     </th>
-                    <th>Họ và tên</th>
-                    <th>Email</th>
+                    <th>Tên khu vực</th>
                     <th>Địa chỉ</th>
-                    <th>Số điện thoại</th>
-                    <th>Khu vực</th>
-                    <th>Username</th>
-                    <th>Password</th>
-                    <th>Hành động</th>
                   </tr>
                 </thead>
                 <tbody>
-                  {listUser &&
-                    listUser.map((item) => {
-                      if (item.isDelete == "true") {
+                  {listAreas &&
+                    listAreas.map((item) => {
+                      if (item.isDeleted == "false") {
                         return (
                           <tr key={item.id}>
                             <td>
@@ -128,19 +140,15 @@ export default function HomePage() {
                                 <label for="checkbox1"></label>
                               </span>
                             </td>
-                            <td>{item.name}</td>
-                            <td>{item.email}</td>
+                            <td>{item.nameArea}</td>
                             <td>{item.address}</td>
-                            <td>{item.phone}</td>
-                            <td>{item.area}</td>
-                            <td>{item.username}</td>
-                            <td>{item.password}</td>
                             <td>
                               <a
                                 href="#editEmployeeModal"
                                 class="edit"
                                 data-bs-toggle="modal"
                                 data-bs-target="#editEmployeeModal"
+                                onClick={(e) => ClickPencil(item.id)}
                               >
                                 <i
                                   class="material-icons"
@@ -155,9 +163,7 @@ export default function HomePage() {
                                 class="delete"
                                 data-bs-toggle="modal"
                                 data-bs-target="#deleteEmployeeModal"
-                                onClick={(e) =>
-                                  setCurrentUsername(item.username)
-                                }
+                                onClick={(e) => setCurrentId(item.id)}
                               >
                                 <i
                                   class="material-icons"
@@ -182,7 +188,7 @@ export default function HomePage() {
           <div class="modal-dialog">
             <div class="modal-content">
               <div class="modal-header">
-                <h4 class="modal-title">Thêm nhân viên mới</h4>
+                <h4 class="modal-title">Thêm khu vực mới</h4>
                 <button
                   type="button"
                   class="btn-close"
@@ -193,47 +199,35 @@ export default function HomePage() {
               <form onSubmit={(e) => Add(e)}>
                 <div class="modal-body">
                   <div class="mb-3">
-                    <label class="form-label">Họ và tên</label>
+                    <label class="form-label">Tên khu vực</label>
                     <input
                       type="text"
                       class="form-control"
                       required
-                      value={newUser.name}
-                      name="name"
-                      onChange={(e) => handleChange(e)}
+                      name="nameArea"
+                      value={newArea.nameArea}
+                      onChange={(e) =>
+                        setNewArea({
+                          ...newArea,
+                          [e.target.name]: e.target.value,
+                        })
+                      }
                     ></input>
                   </div>
                   <div class="mb-3">
-                    <label class="form-label">Email</label>
-                    <input
-                      type="email"
-                      class="form-control"
-                      required
-                      value={newUser.email}
-                      name="email"
-                      onChange={(e) => handleChange(e)}
-                    ></input>
-                  </div>
-                  <div class="mb-3">
-                    <label class="form-label">Địa chỉ</label>
+                    <label class="form-label">Đia chỉ</label>
                     <input
                       type="text"
                       class="form-control"
                       required
-                      value={newUser.address}
                       name="address"
-                      onChange={(e) => handleChange(e)}
-                    ></input>
-                  </div>
-                  <div class="mb-3">
-                    <label class="form-label">Số điện thoại</label>
-                    <input
-                      type="tel"
-                      class="form-control"
-                      required
-                      value={newUser.phone}
-                      name="phone"
-                      onChange={(e) => handleChange(e)}
+                      value={newArea.address}
+                      onChange={(e) =>
+                        setNewArea({
+                          ...newArea,
+                          [e.target.name]: e.target.value,
+                        })
+                      }
                     ></input>
                   </div>
                 </div>
@@ -278,27 +272,39 @@ export default function HomePage() {
                   aria-label="Close"
                 ></button>
               </div>
-              <form>
+              <form onSubmit={(e) => Update(e)}>
                 <div class="modal-body">
                   <div class="mb-3">
-                    <label class="form-label">Họ và tên</label>
-                    <input type="text" class="form-control" required></input>
+                    <label class="form-label">Tên khu vực</label>
+                    <input
+                      type="text"
+                      class="form-control"
+                      required
+                      name="nameArea"
+                      value={newArea.nameArea}
+                      onChange={(e) =>
+                        setNewArea({
+                          ...newArea,
+                          [e.target.name]: e.target.value,
+                        })
+                      }
+                    ></input>
                   </div>
                   <div class="mb-3">
-                    <label class="form-label">Email</label>
-                    <input type="email" class="form-control" required></input>
-                  </div>
-                  <div class="mb-3">
-                    <label class="form-label">Địa chỉ</label>
-                    <input type="text" class="form-control" required></input>
-                  </div>
-                  <div class="mb-3">
-                    <label class="form-label">Số điện thoại</label>
-                    <input type="tel" class="form-control" required></input>
-                  </div>
-                  <div class="mb-3">
-                    <label class="form-label">Password</label>
-                    <input type="tel" class="form-control" required></input>
+                    <label class="form-label">Đia chỉ</label>
+                    <input
+                      type="text"
+                      class="form-control"
+                      required
+                      name="address"
+                      value={newArea.address}
+                      onChange={(e) =>
+                        setNewArea({
+                          ...newArea,
+                          [e.target.name]: e.target.value,
+                        })
+                      }
+                    ></input>
                   </div>
                 </div>
                 <div class="modal-footer">
@@ -309,7 +315,11 @@ export default function HomePage() {
                   >
                     Huỷ
                   </button>
-                  <button type="submit" class="btn btn-success">
+                  <button
+                    type="submit"
+                    class="btn btn-success"
+                    data-bs-dismiss="modal"
+                  >
                     Cập nhật
                   </button>
                 </div>
@@ -323,7 +333,7 @@ export default function HomePage() {
             <div class="modal-content">
               <form onSubmit={(e) => DeleteOne(e)}>
                 <div class="modal-header">
-                  <h4 class="modal-title">Xoá thông tin sinh viên</h4>
+                  <h4 class="modal-title">Xoá khu vực</h4>
                   <button
                     type="button"
                     class="btn-close"

@@ -17,7 +17,7 @@ exports.handler = async (event, context, callback) => {
 
 function getAllUsers() {
   const params = {
-    TableName: "users",
+    TableName: "areas",
   };
   return ddb.scan(params).promise();
 }
