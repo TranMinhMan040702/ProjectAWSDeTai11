@@ -2,22 +2,28 @@ const AWS = require("aws-sdk");
 const ddb = new AWS.DynamoDB.DocumentClient({ region: "us-east-1" });
 
 exports.handler = async (event, context, callback) => {
-  // TODO implement
-  await getAllUsers()
+  await deleteOneUser(event)
     .then((data) => {
       callback(null, {
         statusCode: 200,
-        body: data.Items,
+        body: data.Item,
       });
     })
     .catch((err) => {
       console.error(err);
     });
 };
-
-function getAllUsers() {
+function deleteOneUser(event) {
   const params = {
+    Key: {
+      username: event.queryStringParameters.username,
+    },
     TableName: "users",
+    UpdateExpression: "SET isDelete = :isDelete",
+    ExpressionAttributeValues: {
+      ":isDelete": "false",
+    },
+    ReturnValues: "ALL_NEW",
   };
-  return ddb.scan(params).promise();
+  return ddb.update(params).promise();
 }

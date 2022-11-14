@@ -2,30 +2,27 @@ import React from "react";
 import bg from "../img/carousel-1.jpg";
 import Axios from "axios";
 export default function HomePageIndex() {
+  const [role, setRole] = React.useState("");
   const [account, setAccount] = React.useState({
     username: "",
     password: "",
   });
   const login = (e) => {
     e.preventDefault();
-    Axios.post(process.env.REACT_APP_LOGIN, {
-      username: account.username,
-      password: account.password,
-    })
+    Axios.get(`${process.env.REACT_APP_LOGIN}?username=${account.username}`)
       .then((rs) => {
-        console.log(rs.data);
-        // if (rs.data.password == account.password) {
-        //   if (rs.data.username == "admin@admin") {
-        //     localStorage.setItem("role", "admin");
-        //     window.location.href = "admin";
-        //   } else {
-        //     localStorage.setItem("role", "user");
-        //     window.location.href = "user";
-        //   }
-        // } else {
-        //   alert("Sai mật khẩu");
-        //   // window.location.reload(true);
-        // }
+        if (rs.data.password == account.password) {
+          if (rs.data.username == "admin@admin") {
+            localStorage.setItem("role", "admin");
+            window.location.href = "admin";
+          } else {
+            localStorage.setItem("role", "user");
+            window.location.href = "user";
+          }
+        } else {
+          alert("Sai mật khẩu");
+          // window.location.reload(true);
+        }
       })
       .catch((err) => console.log(err));
   };
@@ -49,15 +46,6 @@ export default function HomePageIndex() {
                     style={{ width: "300px", marginRight: "10px" }}
                   >
                     Đăng nhập
-                  </a>
-                  <a
-                    href="#signupEmployeeModal"
-                    data-bs-toggle="modal"
-                    data-bs-target="#signupEmployeeModal"
-                    class="btn btn-primary fs-3"
-                    style={{ width: "300px" }}
-                  >
-                    Đăng ký
                   </a>
                 </div>
                 <a
@@ -93,124 +81,86 @@ export default function HomePageIndex() {
               </div>
               <form onSubmit={(e) => login(e)}>
                 <div class="modal-body">
-                  <div class="mb-3">
-                    <label class="form-label">Tên đăng nhập:</label>
-                    <input
-                      type="text"
-                      class="form-control"
-                      required
-                      value={account.username}
-                      onChange={(e) =>
-                        setAccount({ ...account, username: e.target.value })
-                      }
-                    ></input>
+                  <div class="mb-3 d-flex justify-content-around">
+                    <label class="form-check-label">
+                      <input
+                        type="radio"
+                        class="form-check-input me-1"
+                        name="role"
+                        value="user"
+                        onClick={(e) => setRole(e.target.value)}
+                      ></input>
+                      Nhân viên quản lý
+                    </label>
+                    <label class="form-check-label">
+                      <input
+                        type="radio"
+                        class="form-check-input me-1"
+                        name="role"
+                        value="admin"
+                        onClick={(e) => setRole(e.target.value)}
+                      ></input>
+                      Admin
+                    </label>
                   </div>
-                  <div class="mb-3">
-                    <label class="form-label">Mật khẩu:</label>
-                    <input
-                      type="password"
-                      class="form-control"
-                      required
-                      value={account.password}
-                      onChange={(e) =>
-                        setAccount({ ...account, password: e.target.value })
-                      }
-                    ></input>
-                  </div>
+                  {role != "" && (
+                    <>
+                      <div class="mb-3">
+                        <label class="form-label">Tên đăng nhập:</label>
+                        <input
+                          type="text"
+                          class="form-control"
+                          required
+                          value={account.username}
+                          onChange={(e) =>
+                            setAccount({ ...account, username: e.target.value })
+                          }
+                        ></input>
+                      </div>
+                      <div class="mb-3">
+                        <label class="form-label">Mật khẩu:</label>
+                        <input
+                          type="password"
+                          class="form-control"
+                          required
+                          value={account.password}
+                          onChange={(e) =>
+                            setAccount({ ...account, password: e.target.value })
+                          }
+                        ></input>
+                      </div>
+                      {role == "user" && (
+                        <div class="mb-3">
+                          <label class="form-label">Chọn khu vực:</label>
+                          <select className="form-control">
+                            <option value="">Choose...</option>
+                            <option value="">A</option>
+                            <option value="">B</option>
+                            <option value="">C</option>
+                          </select>
+                        </div>
+                      )}
+                    </>
+                  )}
                 </div>
-                <div class="modal-footer">
-                  <button
-                    type="button"
-                    class="btn btn-secondary"
-                    data-bs-dismiss="modal"
-                  >
-                    Huỷ
-                  </button>
-                  <button
-                    type="submit"
-                    class="btn btn-success"
-                    data-bs-dismiss="modal"
-                  >
-                    Đăng nhập
-                  </button>
-                </div>
-              </form>
-            </div>
-          </div>
-        </div>
-
-        {/* <!-- MODAL ĐĂNG KÝ --> */}
-        <div
-          class="modal fade"
-          id="signupEmployeeModal"
-          tabindex="-1"
-          aria-labelledby="exampleModalLabel"
-          aria-hidden="true"
-        >
-          <div class="modal-dialog modal-dialog-centered">
-            <div class="modal-content">
-              <div class="modal-header">
-                <h1 class="modal-title fs-5" id="exampleModalLabel">
-                  Đăng ký
-                </h1>
-                <button
-                  type="button"
-                  class="btn-close"
-                  data-bs-dismiss="modal"
-                  aria-label="Close"
-                ></button>
-              </div>
-              <form>
-                <div class="modal-body">
-                  <div class="mb-3">
-                    <label class="form-label">Họ và tên</label>
-                    <input type="text" class="form-control" required></input>
+                {role != "" && (
+                  <div class="modal-footer">
+                    <button
+                      type="button"
+                      class="btn btn-secondary"
+                      data-bs-dismiss="modal"
+                    >
+                      Huỷ
+                    </button>
+                    <button
+                      type="submit"
+                      class="btn btn-success"
+                      data-bs-dismiss="modal"
+                    >
+                      Đăng nhập
+                    </button>
                   </div>
-                  <div class="mb-3">
-                    <label class="form-label">Email</label>
-                    <input type="email" class="form-control" required></input>
-                  </div>
-                  <div class="mb-3">
-                    <label class="form-label">Địa chỉ</label>
-                    <input type="text" class="form-control" required></input>
-                  </div>
-                  <div class="mb-3">
-                    <label class="form-label">Số điện thoại</label>
-                    <input type="tel" class="form-control" required></input>
-                  </div>
-                  <div class="mb-3">
-                    <label class="form-label">Tên đăng nhập:</label>
-                    <input type="text" class="form-control" required></input>
-                  </div>
-                  <div class="mb-3">
-                    <label class="form-label">Mật khẩu:</label>
-                    <input
-                      type="password"
-                      class="form-control"
-                      required
-                    ></input>
-                  </div>
-                  <div class="mb-3">
-                    <label class="form-label">Nhập lại mật khẩu:</label>
-                    <input
-                      type="password"
-                      class="form-control"
-                      required
-                    ></input>
-                  </div>
-                </div>
-                <div class="modal-footer">
-                  <button
-                    type="button"
-                    class="btn btn-secondary"
-                    data-bs-dismiss="modal"
-                  >
-                    Huỷ
-                  </button>
-                  <button type="submit" class="btn btn-success">
-                    Đăng nhập
-                  </button>
-                </div>
+                )}
               </form>
             </div>
           </div>

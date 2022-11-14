@@ -2,14 +2,14 @@ import { useParams, Routes, Route } from "react-router-dom";
 import RemoveSpecialCharacters from "./utils/RemoveSpecialCharacters";
 import "./style/index.scss";
 import HomePageIndex from "./component/HomePageIndex";
-import { HomePage as HomePageAdmin } from "./component/admin/index";
+import { HomePage as HomePageAdmin, Area } from "./component/admin/index";
 import { HomePage as HomePageUser } from "./component/user/index";
 
 import React from "react";
 
 function App() {
   const dict = {
-    // Manager: { src: <Manager /> },
+    Area: { src: <Area /> },
   };
   const Element = () => {
     let params = useParams();
@@ -24,6 +24,8 @@ function App() {
         {localStorage.getItem("role") == "admin" ? (
           <>
             <Route path="/admin" element={<HomePageAdmin />} />
+            <Route path="/admin/:slug" element={<Element />} />
+
             {/* <Route path="/admin" element={<Manager />} /> */}
           </>
         ) : (
