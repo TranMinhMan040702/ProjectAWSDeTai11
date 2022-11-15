@@ -2,6 +2,7 @@ import React from "react";
 import bg from "../img/carousel-1.jpg";
 import Axios from "axios";
 export default function HomePageIndex() {
+    const [role, setRole] = React.useState("");
     const [account, setAccount] = React.useState({
         username: "",
         password: "",
