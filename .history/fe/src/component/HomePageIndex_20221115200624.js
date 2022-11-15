@@ -186,7 +186,7 @@ export default function HomePageIndex() {
                                                             listAreas.map(
                                                                 (item) => {
                                                                     if (
-                                                                        item.isDeleted ==
+                                                                        item.isDeleted ===
                                                                         "false"
                                                                     )
                                                                         return (

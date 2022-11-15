@@ -1,90 +1,103 @@
 import React from "react";
-import Header from "../Header";
 import $ from "jquery";
-import { v4 as uuid } from "uuid";
 import Axios from "axios";
-
-export default function Area() {
+import Header from "../Header";
+import RemoveVietnameseTones from "../../utils/RemoveVietnameseTones";
+export default function HomePage() {
     const selectAll = () => {
         return $("#selectAll").prop("checked")
             ? $(".checkItem").prop("checked", true)
             : $(".checkItem").prop("checked", false);
     };
     const selectItem = () => {
-        $('input[id*="selectItem"]:checked').length ==
-        listAreas.filter((item) => item.isDeleted == "false").length //tam thoi
+        $('input[id*="selectItem"]:checked').length == 2 //tam thoi
             ? $("#selectAll").prop("checked", true)
             : $("#selectAll").prop("checked", false);
     };
+    const [state, setState] = React.useState("");
     const [titleModal, setTitleModal] = React.useState({
         main: "",
         sub: "",
     });
+    const [currentArea, setCurrentArea] = React.useState({
+        id: "",
+        nameArea: "",
+    });
+    const [currentUsername, setCurrentUsername] = React.useState("");
     const [tableDelete, setTableDelete] = React.useState(false);
-    const [state, setState] = React.useState("");
-    const [currentId, setCurrentId] = React.useState("");
+    const [checked, setChecked] = React.useState(true);
     const [listUser, setListUser] = React.useState([]);
     const [listAreas, setListAreas] = React.useState([]);
-    const [newArea, setNewArea] = React.useState({
-        nameArea: "",
+    const [newUser, setNewUser] = React.useState({
+        nameUser: "",
+        email: "",
         address: "",
+        phone: "",
+        area: "",
     });
-    const [checked, setChecked] = React.useState(true);
-    React.useEffect(() => {
-        Axios.get(process.env.REACT_APP_GETALLAREA).then((rs) =>
-            setListAreas(rs.data)
-        );
-    }, [checked]);
     React.useEffect(() => {
         const GETALLUSER = process.env.REACT_APP_GETALLUSER;
         Axios.get(GETALLUSER).then((rs) => setListUser(rs.data));
+    }, [checked]);
+    React.useEffect(() => {
+        Axios.get(process.env.REACT_APP_GETALLAREA).then((rs) => {
+            setListAreas(rs.data);
+            for (var i = 0; i < rs.data.length; i++) {
+                if (rs.data[i].isDeleted == "false") {
+                    setCurrentArea({
+                        id: rs.data[0].id,
+                        nameArea: rs.data[0].nameArea,
+                    });
+                    break;
+                }
+            }
+        });
     }, []);
-
+    const handleChange = (e) => {
+        setNewUser({ ...newUser, [e.target.name]: e.target.value });
+    };
     const Add = (e) => {
         e.preventDefault();
-        const id = uuid();
-        const isDeleted = false;
-        if (
-            listAreas.filter((item) => item.nameArea == newArea.nameArea)
-                .length > 0
-        ) {
-            alert("Khu vực này đã tồn tại");
-        } else {
-            Axios.get(
-                `${process.env.REACT_APP_ADDAREA}?address=${newArea.address}&nameArea=${newArea.nameArea}&id=${id}&isDeleted=${isDeleted}`
-            )
-                .then((rs) => {
-                    setChecked((prev) => (prev = !prev));
-                })
-                .catch((err) => console.log(err));
-        }
-    };
-
-    const Update = (e) => {
-        e.preventDefault();
+        const username =
+            RemoveVietnameseTones(newUser.nameUser) +
+            Math.round(1000 + Math.random() * 9000);
+        const password = Math.round(10000 + Math.random() * 90000);
+        const isDelete = false;
         Axios.get(
-            `${process.env.REACT_APP_UPDATEAREA}?id=${currentId}&nameArea=${newArea.nameArea}&address=${newArea.address}`
+            `${process.env.REACT_APP_ADDUSER}?nameUser=${newUser.nameUser}&email=${newUser.email}&address=${newUser.address}&phone=${newUser.phone}&isDelete=${isDelete}&username=${username}&password=${password}&area=${newUser.area}&role=user`
         )
             .then((rs) => {
                 setChecked((prev) => (prev = !prev));
             })
             .catch((err) => console.log(err));
     };
-    const ClickPencil = (id) => {
-        setCurrentId(id);
-        Axios.get(`${process.env.REACT_APP_GETONEAREABYID}?id=${id}`).then(
-            (rs) => {
-                setNewArea({
-                    nameArea: rs.data.nameArea,
-                    address: rs.data.address,
-                });
-            }
-        );
+
+    const Update = (e) => {
+        e.preventDefault();
+        Axios.get(
+            `${process.env.REACT_APP_UPDATEUSER}?username=${currentUsername}&nameUser=${newUser.nameUser}&email=${newUser.email}&address=${newUser.address}&phone=${newUser.phone}&password=${newUser.password}&area=${newUser.area}`
+        )
+            .then((rs) => {
+                setChecked((prev) => (prev = !prev));
+            })
+            .catch((err) => console.log(err));
+    };
+
+    const DeleteOne = (username, state) => {
+        Axios.get(
+            `${process.env.REACT_APP_DELETEONEUSER}?username=${
+                username || currentUsername
+            }&state=${state}`
+        )
+            .then((rs) => {
+                setChecked((prev) => (prev = !prev));
+            })
+            .catch((err) => console.log(err));
     };
     const Delete = (e) => {
         e.preventDefault();
         if (state == "deleteOneAvailable") {
-            DeleteOne();
+            DeleteOne("", true);
         } else if (state == "deleteOneUnavailable") {
             PermanentlyDelete();
         } else if (state == "restore") {
@@ -93,50 +106,43 @@ export default function Area() {
             DeleteMany();
         }
     };
-    const DeleteOne = (id, state) => {
-        Axios.get(
-            `${process.env.REACT_APP_DELETEONEAREA}?id=${
-                id || currentId
-            }&state=${state == false ? state : true}`
-        )
-            .then((rs) => {
-                setChecked((prev) => (prev = !prev));
-            })
-            .catch((err) => console.log(err));
-    };
+
     const PermanentlyDelete = () => {
         Axios.get(
-            `${process.env.REACT_APP_DELETEPERMANENTLYAREA}?id=${currentId}`
+            `${process.env.REACT_APP_DELETEPERMANENTLYUSER}?username=${currentUsername}`
         )
             .then((rs) => {
                 setChecked((prev) => (prev = !prev));
-                listUser.map((item) => {
-                    if (item.area == currentId) {
-                        Axios.get(
-                            `${process.env.REACT_APP_DELETEPERMANENTLYUSER}?username=${item.username}`
-                        )
-                            .then((rs) => {
-                                setChecked((prev) => (prev = !prev));
-                            })
-                            .catch((err) => console.log(err));
-                    }
-                });
             })
             .catch((err) => console.log(err));
     };
     const DeleteMany = () => {
-        const areas = $("input[id*='selectItem']:checked");
-        const arrId = [];
-        Object.values(areas).map((item) => {
-            arrId.push(item.value);
+        const users = $("input[id*='selectItem']:checked");
+        const arrUsername = [];
+        Object.values(users).map((item) => {
+            arrUsername.push(item.value);
         });
-        console.log(arrId);
-        arrId
+        arrUsername
             .filter((item) => item != undefined)
             .map((item) => {
-                DeleteOne(item);
+                DeleteOne(item, true);
             });
         $("#selectAll").prop("checked", false);
+    };
+    const ClickPencil = (username, area) => {
+        document.getElementById("select-area-edit-form").value = area;
+        setCurrentUsername(username);
+        Axios.get(
+            `${process.env.REACT_APP_GETONEUSERBYUSERNAME}?username=${username}`
+        ).then((rs) => {
+            setNewUser({
+                nameUser: rs.data.nameUser,
+                email: rs.data.email,
+                address: rs.data.address,
+                phone: rs.data.phone,
+                password: rs.data.password,
+            });
+        });
     };
 
     return (
@@ -145,11 +151,33 @@ export default function Area() {
             <div>
                 <div class="container-xl">
                     <div class="table-responsive">
+                        <label htmlFor="">Chọn khu vực:</label>
+                        <select
+                            className="form-control w-25 mb-3"
+                            onChange={(e) => {
+                                setCurrentArea({
+                                    id: e.target.value,
+                                    nameArea: e.target.selectedOptions[0].label,
+                                });
+                            }}
+                        >
+                            {listAreas.map((item) => {
+                                if (item.isDeleted == "false") {
+                                    return (
+                                        <option value={item.id}>
+                                            {item.nameArea}
+                                        </option>
+                                    );
+                                }
+                            })}
+                        </select>
                         <div class="table-wrapper">
                             <div class="table-title">
                                 <div class="row">
                                     <div class="col-sm-6">
-                                        <h2>QUẢN LÝ KHU VỰC</h2>
+                                        <h2>{`QUẢN LÝ NHÂN VIÊN QUẢN LÝ (${currentArea.nameArea
+                                            .toString()
+                                            .toLocaleUpperCase()})`}</h2>
                                     </div>
                                     <div class="col-sm-6">
                                         <a
@@ -169,11 +197,11 @@ export default function Area() {
                                             data-bs-toggle="modal"
                                             data-bs-target="#deleteEmployeeModal"
                                             onClick={(e) => {
-                                                setTitleModal({
-                                                    main: "Xoá khu vực",
-                                                    sub: "Tất cả các khu vực bạn chọn sẽ bị xoá?",
-                                                });
                                                 setState("deleteMany");
+                                                setTitleModal({
+                                                    main: "Xoá nhân viên",
+                                                    sub: "Tất cả các nhân viên bạn chọn sẽ bị xoá?",
+                                                });
                                             }}
                                         >
                                             <i class="material-icons">
@@ -199,17 +227,24 @@ export default function Area() {
                                                 <label></label>
                                             </span>
                                         </th>
-                                        <th>Tên khu vực</th>
+                                        <th>Họ và tên</th>
+                                        <th>Email</th>
                                         <th>Địa chỉ</th>
+                                        <th>Số điện thoại</th>
+                                        <th>Username</th>
+                                        <th>Password</th>
                                         <th>Hành động</th>
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    {listAreas &&
-                                        listAreas.map((item) => {
-                                            if (item.isDeleted == "false") {
+                                    {listUser &&
+                                        listUser.map((item) => {
+                                            if (
+                                                item.isDelete == "false" &&
+                                                item.area == currentArea.id
+                                            ) {
                                                 return (
-                                                    <tr key={item.id}>
+                                                    <tr key={item.username}>
                                                         <td>
                                                             <span class="custom-checkbox">
                                                                 <input
@@ -217,7 +252,7 @@ export default function Area() {
                                                                     className="checkItem"
                                                                     id="selectItem-1"
                                                                     value={
-                                                                        item.id
+                                                                        item.username
                                                                     }
                                                                     onChange={(
                                                                         e
@@ -228,8 +263,12 @@ export default function Area() {
                                                                 <label for="checkbox1"></label>
                                                             </span>
                                                         </td>
-                                                        <td>{item.nameArea}</td>
+                                                        <td>{item.nameUser}</td>
+                                                        <td>{item.email}</td>
                                                         <td>{item.address}</td>
+                                                        <td>{item.phone}</td>
+                                                        <td>{item.username}</td>
+                                                        <td>{item.password}</td>
                                                         <td>
                                                             <a
                                                                 href="#editEmployeeModal"
@@ -238,7 +277,8 @@ export default function Area() {
                                                                 data-bs-target="#editEmployeeModal"
                                                                 onClick={(e) =>
                                                                     ClickPencil(
-                                                                        item.id
+                                                                        item.username,
+                                                                        item.area
                                                                     )
                                                                 }
                                                             >
@@ -258,24 +298,24 @@ export default function Area() {
                                                                 onClick={(
                                                                     e
                                                                 ) => {
-                                                                    setTitleModal(
-                                                                        {
-                                                                            main: "Xoá khu vực",
-                                                                            sub: "Bạn chắc chắn xoá khu vực này?",
-                                                                        }
-                                                                    );
-                                                                    setCurrentId(
-                                                                        item.id
-                                                                    );
                                                                     setState(
                                                                         "deleteOneAvailable"
+                                                                    );
+                                                                    setCurrentUsername(
+                                                                        item.username
+                                                                    );
+                                                                    setTitleModal(
+                                                                        {
+                                                                            main: "Xoá nhân viên",
+                                                                            sub: "Bạn có chắc chắn xoá nhân viên này không?",
+                                                                        }
                                                                     );
                                                                 }}
                                                             >
                                                                 <i
                                                                     class="material-icons"
                                                                     data-toggle="tooltip"
-                                                                    title="Xoá"
+                                                                    title="Delete"
                                                                 >
                                                                     &#xE872;
                                                                 </i>
@@ -309,7 +349,6 @@ export default function Area() {
                                 Đóng
                             </button>
                         )}
-
                         {tableDelete && (
                             <div class="table-wrapper">
                                 <div class="table-title">
@@ -322,22 +361,41 @@ export default function Area() {
                                 <table class="table table-striped table-hover">
                                     <thead>
                                         <tr>
-                                            <th>Tên khu vực</th>
+                                            <th>Họ và tên</th>
+                                            <th>Email</th>
                                             <th>Địa chỉ</th>
+                                            <th>Số điện thoại</th>
+                                            <th>Username</th>
+                                            <th>Password</th>
                                             <th>Hành động</th>
                                         </tr>
                                     </thead>
                                     <tbody>
-                                        {listAreas &&
-                                            listAreas.map((item) => {
-                                                if (item.isDeleted == "true") {
+                                        {listUser &&
+                                            listUser.map((item) => {
+                                                if (
+                                                    item.isDelete == "true" &&
+                                                    item.area == currentArea.id
+                                                ) {
                                                     return (
-                                                        <tr key={item.id}>
+                                                        <tr key={item.username}>
                                                             <td>
-                                                                {item.nameArea}
+                                                                {item.nameUser}
+                                                            </td>
+                                                            <td>
+                                                                {item.email}
                                                             </td>
                                                             <td>
                                                                 {item.address}
+                                                            </td>
+                                                            <td>
+                                                                {item.phone}
+                                                            </td>
+                                                            <td>
+                                                                {item.username}
+                                                            </td>
+                                                            <td>
+                                                                {item.password}
                                                             </td>
                                                             <td>
                                                                 <a
@@ -348,16 +406,16 @@ export default function Area() {
                                                                     onClick={(
                                                                         e
                                                                     ) => {
-                                                                        setCurrentId(
-                                                                            item.id
-                                                                        );
                                                                         setState(
                                                                             "deleteOneUnavailable"
                                                                         );
+                                                                        setCurrentUsername(
+                                                                            item.username
+                                                                        );
                                                                         setTitleModal(
                                                                             {
-                                                                                main: "Xoá khu vực vĩnh viễn",
-                                                                                sub: "Bạn chắc chắn xoá khu vực này?",
+                                                                                main: "Xoá nhân viên",
+                                                                                sub: "Nhân viên được chọn sẽ bị xoá vĩnh viễn?",
                                                                             }
                                                                         );
                                                                     }}
@@ -378,16 +436,16 @@ export default function Area() {
                                                                     onClick={(
                                                                         e
                                                                     ) => {
-                                                                        setCurrentId(
-                                                                            item.id
+                                                                        setCurrentUsername(
+                                                                            item.username
                                                                         );
                                                                         setState(
                                                                             "restore"
                                                                         );
                                                                         setTitleModal(
                                                                             {
-                                                                                main: "Khôi phục khu vực",
-                                                                                sub: "Bạn chắc chắn muốn khôi phục khu vực này?",
+                                                                                main: "Khôi phục nhân viên",
+                                                                                sub: "Bạn chắc chắn muốn khôi phục nhân viên này?",
                                                                             }
                                                                         );
                                                                     }}
@@ -416,7 +474,7 @@ export default function Area() {
                     <div class="modal-dialog">
                         <div class="modal-content">
                             <div class="modal-header">
-                                <h4 class="modal-title">Thêm khu vực mới</h4>
+                                <h4 class="modal-title">Thêm nhân viên mới</h4>
                                 <button
                                     type="button"
                                     class="btn-close"
@@ -428,41 +486,80 @@ export default function Area() {
                                 <div class="modal-body">
                                     <div class="mb-3">
                                         <label class="form-label">
-                                            Tên khu vực
+                                            Họ và tên
                                         </label>
                                         <input
                                             type="text"
                                             class="form-control"
                                             required
-                                            name="nameArea"
-                                            value={newArea.nameArea}
-                                            onChange={(e) =>
-                                                setNewArea({
-                                                    ...newArea,
-                                                    [e.target.name]:
-                                                        e.target.value,
-                                                })
-                                            }
+                                            value={newUser.nameUser}
+                                            name="nameUser"
+                                            onChange={(e) => handleChange(e)}
+                                        ></input>
+                                    </div>
+                                    <div class="mb-3">
+                                        <label class="form-label">Email</label>
+                                        <input
+                                            type="email"
+                                            class="form-control"
+                                            required
+                                            value={newUser.email}
+                                            name="email"
+                                            onChange={(e) => handleChange(e)}
                                         ></input>
                                     </div>
                                     <div class="mb-3">
                                         <label class="form-label">
-                                            Đia chỉ
+                                            Địa chỉ
                                         </label>
                                         <input
                                             type="text"
                                             class="form-control"
                                             required
+                                            value={newUser.address}
                                             name="address"
-                                            value={newArea.address}
-                                            onChange={(e) =>
-                                                setNewArea({
-                                                    ...newArea,
-                                                    [e.target.name]:
-                                                        e.target.value,
-                                                })
-                                            }
+                                            onChange={(e) => handleChange(e)}
                                         ></input>
+                                    </div>
+                                    <div class="mb-3">
+                                        <label class="form-label">
+                                            Số điện thoại
+                                        </label>
+                                        <input
+                                            type="tel"
+                                            class="form-control"
+                                            required
+                                            value={newUser.phone}
+                                            name="phone"
+                                            onChange={(e) => handleChange(e)}
+                                        ></input>
+                                    </div>
+                                    <div class="mb-3">
+                                        <label class="form-label">
+                                            Chọn khu vực:
+                                        </label>
+                                        <select
+                                            className="form-control"
+                                            name="area"
+                                            onChange={(e) => handleChange(e)}
+                                            required
+                                        >
+                                            <option value="">Choose...</option>
+                                            {listAreas &&
+                                                listAreas.map((item) => {
+                                                    if (
+                                                        item.isDeleted ==
+                                                        "false"
+                                                    )
+                                                        return (
+                                                            <option
+                                                                value={item.id}
+                                                            >
+                                                                {item.nameArea}
+                                                            </option>
+                                                        );
+                                                })}
+                                        </select>
                                     </div>
                                 </div>
                                 <div class="modal-footer">
@@ -513,41 +610,92 @@ export default function Area() {
                                 <div class="modal-body">
                                     <div class="mb-3">
                                         <label class="form-label">
-                                            Tên khu vực
+                                            Họ và tên
                                         </label>
                                         <input
                                             type="text"
                                             class="form-control"
                                             required
-                                            name="nameArea"
-                                            value={newArea.nameArea}
-                                            onChange={(e) =>
-                                                setNewArea({
-                                                    ...newArea,
-                                                    [e.target.name]:
-                                                        e.target.value,
-                                                })
-                                            }
+                                            value={newUser.nameUser}
+                                            name="nameUser"
+                                            onChange={(e) => handleChange(e)}
+                                        ></input>
+                                    </div>
+                                    <div class="mb-3">
+                                        <label class="form-label">Email</label>
+                                        <input
+                                            type="email"
+                                            class="form-control"
+                                            required
+                                            value={newUser.email}
+                                            name="email"
+                                            onChange={(e) => handleChange(e)}
                                         ></input>
                                     </div>
                                     <div class="mb-3">
                                         <label class="form-label">
-                                            Đia chỉ
+                                            Địa chỉ
                                         </label>
                                         <input
                                             type="text"
                                             class="form-control"
                                             required
+                                            value={newUser.address}
                                             name="address"
-                                            value={newArea.address}
-                                            onChange={(e) =>
-                                                setNewArea({
-                                                    ...newArea,
-                                                    [e.target.name]:
-                                                        e.target.value,
-                                                })
-                                            }
+                                            onChange={(e) => handleChange(e)}
                                         ></input>
+                                    </div>
+                                    <div class="mb-3">
+                                        <label class="form-label">
+                                            Số điện thoại
+                                        </label>
+                                        <input
+                                            type="tel"
+                                            class="form-control"
+                                            required
+                                            value={newUser.phone}
+                                            name="phone"
+                                            onChange={(e) => handleChange(e)}
+                                        ></input>
+                                    </div>
+                                    <div class="mb-3">
+                                        <label class="form-label">
+                                            Password
+                                        </label>
+                                        <input
+                                            type="tel"
+                                            class="form-control"
+                                            required
+                                            value={newUser.password}
+                                            name="password"
+                                            onChange={(e) => handleChange(e)}
+                                        ></input>
+                                    </div>
+                                    <div className="mb-3">
+                                        <label class="form-label">
+                                            Chọn khu vực
+                                        </label>
+                                        <select
+                                            id="select-area-edit-form"
+                                            className="form-control"
+                                            required
+                                            onChange={(e) => {
+                                                setNewUser({
+                                                    ...newUser,
+                                                    area: e.target.value,
+                                                });
+                                            }}
+                                        >
+                                            {listAreas.map((item) => {
+                                                if (item.isDeleted == "false") {
+                                                    return (
+                                                        <option value={item.id}>
+                                                            {item.nameArea}
+                                                        </option>
+                                                    );
+                                                }
+                                            })}
+                                        </select>
                                     </div>
                                 </div>
                                 <div class="modal-footer">
