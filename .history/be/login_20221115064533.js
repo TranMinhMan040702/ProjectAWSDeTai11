@@ -5,8 +5,8 @@ exports.handler = async (event, context, callback) => {
     await login(event)
         .then((data) => {
             callback(null, {
-                statusCode: 200,
-                body: data.Item,
+                statusCode: 201,
+                body: data.Items,
             });
         })
         .catch((err) => {
@@ -14,10 +14,10 @@ exports.handler = async (event, context, callback) => {
         });
 };
 
-function login(event) {
+function login(e) {
     const params = {
         TableName: "account",
-        Key: { username: event.queryStringParameters.username },
+        Key: { username: e.username },
     };
-    return ddb.get(params).promise();
+    return ddb.scan(params).promise();
 }

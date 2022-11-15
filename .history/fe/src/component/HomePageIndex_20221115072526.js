@@ -12,7 +12,7 @@ export default function HomePageIndex() {
         Axios.get(`${process.env.REACT_APP_LOGIN}?username=${account.username}`)
             .then((rs) => {
                 if (rs.data.password == account.password) {
-                    if (rs.data.username == account.username) {
+                    if (rs.data.username == "admin@admin") {
                         localStorage.setItem("role", "admin");
                         window.location.href = "admin";
                     } else {
