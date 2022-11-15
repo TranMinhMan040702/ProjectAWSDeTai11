@@ -2,30 +2,45 @@ import React from "react";
 import bg from "../img/carousel-1.jpg";
 import Axios from "axios";
 export default function HomePageIndex() {
-  const [role, setRole] = React.useState("");
   const [account, setAccount] = React.useState({
     username: "",
     password: "",
+    role: "",
+    area: "",
+    isDelete: false,
   });
+  console.log(account);
+  const [listAreas, setListAreas] = React.useState([]);
+
+  const handleChange = (e) => {
+    setAccount({ ...account, [e.target.name]: e.target.value });
+  };
   const login = (e) => {
     e.preventDefault();
     Axios.get(`${process.env.REACT_APP_LOGIN}?username=${account.username}`)
       .then((rs) => {
-        if (rs.data.password == account.password) {
-          if (rs.data.username == "admin@admin") {
-            localStorage.setItem("role", "admin");
-            window.location.href = "admin";
+        if (rs.data.isDelete == "false") {
+          if (rs.data.password == account.password) {
+            if (rs.data.role == "user") {
+              localStorage.setItem("role", "user");
+              window.location.href = "user";
+            } else {
+              localStorage.setItem("role", "admin");
+              window.location.href = "admin";
+            }
           } else {
-            localStorage.setItem("role", "user");
-            window.location.href = "user";
+            alert("Sai mật khẩu");
+            // window.location.reload(true);
           }
-        } else {
-          alert("Sai mật khẩu");
-          // window.location.reload(true);
         }
       })
       .catch((err) => console.log(err));
   };
+  React.useEffect(() => {
+    Axios.get(process.env.REACT_APP_GETALLAREA).then((rs) =>
+      setListAreas(rs.data)
+    );
+  }, []);
   return (
     <>
       <div>
@@ -88,7 +103,7 @@ export default function HomePageIndex() {
                         class="form-check-input me-1"
                         name="role"
                         value="user"
-                        onClick={(e) => setRole(e.target.value)}
+                        onClick={(e) => handleChange(e)}
                       ></input>
                       Nhân viên quản lý
                     </label>
@@ -98,12 +113,12 @@ export default function HomePageIndex() {
                         class="form-check-input me-1"
                         name="role"
                         value="admin"
-                        onClick={(e) => setRole(e.target.value)}
+                        onClick={(e) => handleChange(e)}
                       ></input>
                       Admin
                     </label>
                   </div>
-                  {role != "" && (
+                  {account.role != "" && (
                     <>
                       <div class="mb-3">
                         <label class="form-label">Tên đăng nhập:</label>
@@ -129,21 +144,32 @@ export default function HomePageIndex() {
                           }
                         ></input>
                       </div>
-                      {role == "user" && (
+                      {account.role == "user" && (
                         <div class="mb-3">
                           <label class="form-label">Chọn khu vực:</label>
-                          <select className="form-control">
+                          <select
+                            className="form-control"
+                            name="area"
+                            required
+                            onChange={(e) => handleChange(e)}
+                          >
                             <option value="">Choose...</option>
-                            <option value="">A</option>
-                            <option value="">B</option>
-                            <option value="">C</option>
+                            {listAreas &&
+                              listAreas.map((item) => {
+                                if (item.isDeleted == "false")
+                                  return (
+                                    <option value={item.id}>
+                                      {item.nameArea}
+                                    </option>
+                                  );
+                              })}
                           </select>
                         </div>
                       )}
                     </>
                   )}
                 </div>
-                {role != "" && (
+                {account.role != "" && (
                   <div class="modal-footer">
                     <button
                       type="button"
