@@ -25,14 +25,13 @@ export default function HomePage() {
         id: "",
         nameArea: "",
     });
-    // chua dung
     const [currentUsername, setCurrentUsername] = React.useState(
         localStorage.getItem("username")
     );
+    const [currentEmployeeId, setCurrentEmployeeId] = React.useState("");
     const [tableDelete, setTableDelete] = React.useState(false);
     const [checked, setChecked] = React.useState(true);
     const [listEmployee, setListEmployee] = React.useState([]);
-    const [listAreas, setListAreas] = React.useState([]);
     const [newEmployee, setNewEmployee] = React.useState({
         fullname: "",
         address: "",
@@ -46,14 +45,12 @@ export default function HomePage() {
         ).then((rs) => {
             setNewEmployee({ ...newEmployee, area: rs.data.area });
             setCurrentArea({ ...currentArea, id: rs.data.area });
-            console.log(currentArea);
         });
     }, []);
     // get all employee
     React.useEffect(() => {
         Axios.get(process.env.REACT_APP_GETALLEMPLOYEE).then((rs) => {
             setListEmployee(rs.data);
-            console.log(rs.data);
         });
     }, [checked]);
     // set currentArea
@@ -62,23 +59,9 @@ export default function HomePage() {
             `${process.env.REACT_APP_GETONEAREABYID}?id=${currentArea.id}`
         ).then((rs) => {
             setCurrentArea({ ...currentArea, nameArea: rs.data.nameArea });
-            console.log(currentArea);
+            // console.log(currentArea);
         });
     }, []);
-    // React.useEffect(() => {
-    //     Axios.get(process.env.REACT_APP_GETALLAREA).then((rs) => {
-    //         setListAreas(rs.data);
-    //         for (var i = 0; i < rs.data.length; i++) {
-    //             if (rs.data[i].isDeleted == "false") {
-    //                 setCurrentArea({
-    //                     id: rs.data[0].id,
-    //                     nameArea: rs.data[0].nameArea,
-    //                 });
-    //                 break;
-    //             }
-    //         }
-    //     });
-    // }, []);
     const handleChange = (e) => {
         setNewEmployee({ ...newEmployee, [e.target.name]: e.target.value });
     };
@@ -102,11 +85,32 @@ export default function HomePage() {
             })
             .catch((err) => console.log(err));
     };
-    const DeleteOne = (username, state) => {
+    const DeleteOne = (id, state) => {
+        // console.log(id);
         Axios.get(
-            `${process.env.REACT_APP_DELETEONEUSER}?username=${
-                username || currentUsername
-            }&state=${state}`
+            `${process.env.REACT_APP_DELETEONEEMPLOYEE}?id=${id}&state=${state}`
+        )
+            .then((rs) => {
+                setChecked((prev) => (prev = !prev));
+            })
+            .catch((err) => console.log(err));
+    };
+    const DeleteMany = () => {
+        const employees = $("input[id*='selectItem']:checked");
+        const arrEmployeeId = [];
+        Object.values(employees).map((item) => {
+            arrEmployeeId.push(item.value);
+        });
+        arrEmployeeId
+            .filter((id) => id != undefined)
+            .map((id) => {
+                DeleteOne(id, true);
+            });
+        $("#selectAll").prop("checked", false);
+    };
+    const PermanentlyDelete = () => {
+        Axios.get(
+            `${process.env.REACT_APP_DELETEPERMANENTLYEMPLOYEE}?id=${currentEmployeeId}`
         )
             .then((rs) => {
                 setChecked((prev) => (prev = !prev));
@@ -116,36 +120,14 @@ export default function HomePage() {
     const Delete = (e) => {
         e.preventDefault();
         if (state == "deleteOneAvailable") {
-            DeleteOne("", true);
+            DeleteOne(currentEmployeeId, true);
         } else if (state == "deleteOneUnavailable") {
             PermanentlyDelete();
         } else if (state == "restore") {
-            DeleteOne("", false);
+            DeleteOne(currentEmployeeId, false);
         } else {
             DeleteMany();
         }
-    };
-    const PermanentlyDelete = () => {
-        Axios.get(
-            `${process.env.REACT_APP_DELETEPERMANENTLYUSER}?username=${currentUsername}`
-        )
-            .then((rs) => {
-                setChecked((prev) => (prev = !prev));
-            })
-            .catch((err) => console.log(err));
-    };
-    const DeleteMany = () => {
-        const users = $("input[id*='selectItem']:checked");
-        const arrUsername = [];
-        Object.values(users).map((item) => {
-            arrUsername.push(item.value);
-        });
-        arrUsername
-            .filter((item) => item != undefined)
-            .map((item) => {
-                DeleteOne(item, true);
-            });
-        $("#selectAll").prop("checked", false);
     };
     const ClickPencil = (username, area) => {
         document.getElementById("select-area-edit-form").value = area;
@@ -293,8 +275,8 @@ export default function HomePage() {
                                                                     setState(
                                                                         "deleteOneAvailable"
                                                                     );
-                                                                    setCurrentUsername(
-                                                                        item.username
+                                                                    setCurrentEmployeeId(
+                                                                        item.id
                                                                     );
                                                                     setTitleModal(
                                                                         {
@@ -328,7 +310,7 @@ export default function HomePage() {
                                     setTableDelete((prev) => (prev = !prev))
                                 }
                             >
-                                Xem các khu vực đã bị xoá
+                                Xem các nhân viên đã bị xoá
                             </button>
                         ) : (
                             <button
@@ -346,7 +328,7 @@ export default function HomePage() {
                                 <div class="table-title">
                                     <div class="row">
                                         <div class="col-sm-6">
-                                            <h2>CÁC KHU VỰC ĐÃ BỊ XOÁ</h2>
+                                            <h2>CÁC NHÂN VIÊN BỊ XÓA</h2>
                                         </div>
                                     </div>
                                 </div>
@@ -354,11 +336,8 @@ export default function HomePage() {
                                     <thead>
                                         <tr>
                                             <th>Họ và tên</th>
-                                            <th>Email</th>
                                             <th>Địa chỉ</th>
                                             <th>Số điện thoại</th>
-                                            <th>Username</th>
-                                            <th>Password</th>
                                             <th>Hành động</th>
                                         </tr>
                                     </thead>
@@ -370,24 +349,15 @@ export default function HomePage() {
                                                     item.area == currentArea.id
                                                 ) {
                                                     return (
-                                                        <tr key={item.username}>
+                                                        <tr key={item.id}>
                                                             <td>
-                                                                {item.nameUser}
-                                                            </td>
-                                                            <td>
-                                                                {item.email}
+                                                                {item.fullname}
                                                             </td>
                                                             <td>
                                                                 {item.address}
                                                             </td>
                                                             <td>
                                                                 {item.phone}
-                                                            </td>
-                                                            <td>
-                                                                {item.username}
-                                                            </td>
-                                                            <td>
-                                                                {item.password}
                                                             </td>
                                                             <td>
                                                                 <a
@@ -401,8 +371,8 @@ export default function HomePage() {
                                                                         setState(
                                                                             "deleteOneUnavailable"
                                                                         );
-                                                                        setCurrentUsername(
-                                                                            item.username
+                                                                        setCurrentEmployeeId(
+                                                                            item.id
                                                                         );
                                                                         setTitleModal(
                                                                             {
@@ -428,8 +398,8 @@ export default function HomePage() {
                                                                     onClick={(
                                                                         e
                                                                     ) => {
-                                                                        setCurrentUsername(
-                                                                            item.username
+                                                                        setCurrentEmployeeId(
+                                                                            item.id
                                                                         );
                                                                         setState(
                                                                             "restore"
