@@ -46,6 +46,11 @@ export default function HomePage() {
             setNewEmployee({ ...newEmployee, area: rs.data.area });
             setCurrentArea({ ...currentArea, id: rs.data.area });
         });
+        Axios.get(
+            `${process.env.REACT_APP_GETONEAREABYID}?id=${currentArea.id}`
+        ).then((rs) => {
+            setCurrentArea({ nameArea: rs.data.nameArea });
+        });
     }, []);
     // get all employee
     React.useEffect(() => {
@@ -53,15 +58,6 @@ export default function HomePage() {
             setListEmployee(rs.data);
         });
     }, [checked]);
-    // set currentArea
-    React.useEffect(() => {
-        Axios.get(
-            `${process.env.REACT_APP_GETONEAREABYID}?id=${currentArea.id}`
-        ).then((rs) => {
-            setCurrentArea({ ...currentArea, nameArea: rs.data.nameArea });
-            // console.log(currentArea);
-        });
-    }, []);
     const handleChange = (e) => {
         setNewEmployee({ ...newEmployee, [e.target.name]: e.target.value });
     };
@@ -79,8 +75,12 @@ export default function HomePage() {
     };
     const Update = (e) => {
         e.preventDefault();
-        Axios.get(`${process.env.REACT_APP_UPDATEUSER}`)
+        console.log(newEmployee);
+        Axios.get(
+            `${process.env.REACT_APP_UPDATEEMPLOYEE}?id=${currentEmployeeId}&fullname=${newEmployee.fullname}&address=${newEmployee.address}&phone=${newEmployee.phone}`
+        )
             .then((rs) => {
+                console.log(rs.data);
                 setChecked((prev) => (prev = !prev));
             })
             .catch((err) => console.log(err));
@@ -129,19 +129,17 @@ export default function HomePage() {
             DeleteMany();
         }
     };
-    const ClickPencil = (username, area) => {
-        document.getElementById("select-area-edit-form").value = area;
-        setCurrentUsername(username);
+    const ClickPencil = (employeeId) => {
+        setCurrentEmployeeId(employeeId);
         Axios.get(
-            `${process.env.REACT_APP_GETONEUSERBYUSERNAME}?username=${username}`
+            `${process.env.REACT_APP_GETONEEMPLOYEEBYID}?id=${employeeId}`
         ).then((rs) => {
-            // setNewUser({
-            //     nameUser: rs.data.nameUser,
-            //     email: rs.data.email,
-            //     address: rs.data.address,
-            //     phone: rs.data.phone,
-            //     password: rs.data.password,
-            // });
+            const employee = rs.data;
+            setNewEmployee({
+                fullname: employee.fullname,
+                address: employee.address,
+                phone: employee.phone,
+            });
         });
     };
 
@@ -251,8 +249,7 @@ export default function HomePage() {
                                                                 data-bs-target="#editEmployeeModal"
                                                                 onClick={(e) =>
                                                                     ClickPencil(
-                                                                        item.username,
-                                                                        item.area
+                                                                        item.id
                                                                     )
                                                                 }
                                                             >

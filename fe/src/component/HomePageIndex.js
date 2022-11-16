@@ -20,7 +20,7 @@ export default function HomePageIndex() {
         Axios.get(`${process.env.REACT_APP_LOGIN}?username=${account.username}`)
             .then((rs) => {
                 console.log(rs.data);
-                if (rs.data.isDelete == "false") {
+                if (rs.data.isDelete === "false") {
                     console.log("ton tai");
                     if (rs.data.password === account.password) {
                         console.log("mat khau dung");
