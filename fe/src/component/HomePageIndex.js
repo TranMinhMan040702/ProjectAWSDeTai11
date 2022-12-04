@@ -19,25 +19,29 @@ export default function HomePageIndex() {
     e.preventDefault();
     Axios.get(`${process.env.REACT_APP_LOGIN}?username=${account.username}`)
       .then((rs) => {
-        if (rs.data.password === account.password) {
-          if (rs.data.isDelete === "false") {
-            if (rs.data.role === "user") {
-              if (rs.data.area === account.area) {
-                localStorage.setItem("role", "user");
-                window.location.href = "user";
-                localStorage.setItem("username", account.username);
+        if (account.role == rs.data.role) {
+          if (rs.data.password === account.password) {
+            if (rs.data.isDelete === "false") {
+              if (rs.data.role === "user") {
+                if (rs.data.area === account.area) {
+                  localStorage.setItem("role", "user");
+                  window.location.href = "user";
+                  localStorage.setItem("username", account.username);
+                } else {
+                  alert("Tài khoản sai khu vực");
+                }
               } else {
-                alert("Tài khoản sai khu vực");
+                localStorage.setItem("role", "admin");
+                window.location.href = "admin";
               }
             } else {
-              localStorage.setItem("role", "admin");
-              window.location.href = "admin";
+              alert("Tài khoản hiện tại đang bị khoá");
             }
           } else {
-            alert("Tài khoản hiện tại đang bị khoá");
+            alert("Sai mật khẩu");
           }
         } else {
-          alert("Sai mật khẩu");
+          alert("Tài khoản không đúng vai trò đã chọn");
         }
       })
       .catch((err) => alert("Sai tên đăng nhập"));
