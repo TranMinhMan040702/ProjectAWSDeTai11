@@ -19,23 +19,28 @@ export default function HomePageIndex() {
     e.preventDefault();
     Axios.get(`${process.env.REACT_APP_LOGIN}?username=${account.username}`)
       .then((rs) => {
-        if (rs.data.isDelete === "false") {
-          if (rs.data.password === account.password) {
+        if (rs.data.password === account.password) {
+          if (rs.data.isDelete === "false") {
             if (rs.data.role === "user") {
-              localStorage.setItem("role", "user");
-              window.location.href = "user";
-              localStorage.setItem("username", account.username);
+              if (rs.data.area === account.area) {
+                localStorage.setItem("role", "user");
+                window.location.href = "user";
+                localStorage.setItem("username", account.username);
+              } else {
+                alert("Tài khoản sai khu vực");
+              }
             } else {
               localStorage.setItem("role", "admin");
               window.location.href = "admin";
             }
           } else {
-            alert("Sai mật khẩu");
-            // window.location.reload(true);
+            alert("Tài khoản hiện tại đang bị khoá");
           }
+        } else {
+          alert("Sai mật khẩu");
         }
       })
-      .catch((err) => console.log(err));
+      .catch((err) => alert("Sai tên đăng nhập"));
   };
   React.useEffect(() => {
     Axios.get(process.env.REACT_APP_GETALLAREA).then((rs) =>
@@ -188,11 +193,7 @@ export default function HomePageIndex() {
                     >
                       Huỷ
                     </button>
-                    <button
-                      type="submit"
-                      class="btn btn-success"
-                      data-bs-dismiss="modal"
-                    >
+                    <button type="submit" class="btn btn-success">
                       Đăng nhập
                     </button>
                   </div>

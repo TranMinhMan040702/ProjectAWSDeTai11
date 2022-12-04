@@ -23,7 +23,7 @@ function addEmployee(event) {
       address: event.queryStringParameters.address,
       area: event.queryStringParameters.area,
       phone: event.queryStringParameters.phone,
-      isDelete: event.queryStringParameters.isDelete,
+      isDeleted: event.queryStringParameters.isDeleted,
     },
   };
   return ddb.put(params).promise();

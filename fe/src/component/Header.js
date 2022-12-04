@@ -13,20 +13,23 @@ export default function Header(props) {
         <div className="container-fluid">
           <div className="collapse navbar-collapse" id="collapse">
             <ul className="navbar-nav me-auto mb-2 mb-lg-0 text-center">
-              <li className="nav-item me-3">
-                <Link className="text-white nav-link" to="/admin">
-                  Trang chủ
-                </Link>
-              </li>
-              <li className="nav-item me-3">
-                <Link className="text-white nav-link" to="/admin/area">
-                  Quản lý khu vực
-                </Link>
-              </li>
-              {localStorage.getItem("id") && (
+              {localStorage.getItem("role") == "admin" ? (
+                <>
+                  <li className="nav-item me-3">
+                    <Link className="text-white nav-link" to="/admin">
+                      Trang chủ
+                    </Link>
+                  </li>
+                  <li className="nav-item me-3">
+                    <Link className="text-white nav-link" to="/admin/area">
+                      Quản lý khu vực
+                    </Link>
+                  </li>
+                </>
+              ) : (
                 <li className="nav-item me-3">
-                  <Link className="text-white nav-link" to="/feedback">
-                    Góp ý
+                  <Link className="text-white nav-link" to="/user">
+                    Trang chủ
                   </Link>
                 </li>
               )}
@@ -55,6 +58,20 @@ export default function Header(props) {
                   </div>
                 </button>
                 <ul className="dropdown-menu w-100">
+                  {localStorage.getItem("role") == "user" && (
+                    <li>
+                      <button className="dropdown-item ">
+                        <a
+                          className="dropdown-item text-dark p-0"
+                          data-bs-toggle="modal"
+                          data-bs-target="#editUserModal"
+                        >
+                          Quản lý thông tin cá nhân
+                        </a>
+                      </button>
+                    </li>
+                  )}
+
                   <li>
                     <button className="dropdown-item ">
                       <a
