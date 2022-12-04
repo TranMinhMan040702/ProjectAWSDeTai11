@@ -2,6 +2,7 @@
 import React from "react";
 import { Link } from "react-router-dom";
 export default function Header(props) {
+    console.log(props.data)
     const logout = (e) => {
         e.preventDefault();
         localStorage.removeItem("role");
@@ -67,7 +68,12 @@ export default function Header(props) {
                                     <li>
                                         <a
                                             className="dropdown-item"
-                                            href="/me/manager-info"
+                                            //href="/me/manager-info"
+                                            href="#editUserModal"
+                                            class="edit"
+                                            data-bs-toggle="modal"
+                                            data-bs-target="#editUserModal"
+                                        
                                         >
                                             Quản lý thông tin cá nhân
                                         </a>

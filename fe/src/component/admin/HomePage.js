@@ -53,6 +53,7 @@ export default function HomePage() {
             }
         });
     }, []);
+
     const handleChange = (e) => {
         setNewUser({ ...newUser, [e.target.name]: e.target.value });
     };

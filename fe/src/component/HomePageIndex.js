@@ -32,6 +32,7 @@ export default function HomePageIndex() {
                         } else {
                             localStorage.setItem("role", "admin");
                             window.location.href = "admin";
+                            
                         }
                     } else {
                         alert("Sai mật khẩu");

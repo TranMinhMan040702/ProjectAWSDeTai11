@@ -38,6 +38,15 @@ export default function HomePage() {
         phone: "",
         area: "",
     });
+    const [listAreas, setListAreas] = React.useState([]);
+    const [newUser, setNewUser] = React.useState({
+        nameUser: "",
+        email: "",
+        address: "",
+        phone: "",
+        area: "",
+    });
+
     // get areaId of manager
     React.useEffect(() => {
         Axios.get(
@@ -58,8 +67,20 @@ export default function HomePage() {
             setListEmployee(rs.data);
         });
     }, [checked]);
+
+    // get account 
+    React.useEffect(() => {
+        const GETONEBYUSENAME = process.env.REACT_APP_GETONEUSERBYUSERNAME;
+        Axios.get(`${GETONEBYUSENAME}?username=${currentUsername}`).then(rs => {
+            setNewUser({ ...newUser, ...rs.data})
+            
+        })
+    }, []);
     const handleChange = (e) => {
         setNewEmployee({ ...newEmployee, [e.target.name]: e.target.value });
+    };
+    const handleAccountChange = (e) => {
+        setNewUser({ ...newUser, [e.target.name]: e.target.value });
     };
     const Add = (e) => {
         e.preventDefault();
@@ -81,6 +102,17 @@ export default function HomePage() {
         )
             .then((rs) => {
                 console.log(rs.data);
+                setChecked((prev) => (prev = !prev));
+            })
+            .catch((err) => console.log(err));
+    };
+    // update account
+    const UpdateAccount = (e) => {
+        e.preventDefault();
+        Axios.get(
+            `${process.env.REACT_APP_UPDATEUSER}?username=${currentUsername}&nameUser=${newUser.nameUser}&email=${newUser.email}&address=${newUser.address}&phone=${newUser.phone}&password=${newUser.password}&area=${newUser.area}`
+        )
+            .then((rs) => {
                 setChecked((prev) => (prev = !prev));
             })
             .catch((err) => console.log(err));
@@ -145,7 +177,7 @@ export default function HomePage() {
 
     return (
         <>
-            <Header />
+            <Header data={newUser}/>
             <div>
                 <div class="container-xl">
                     <div class="table-responsive">
@@ -497,6 +529,116 @@ export default function HomePage() {
                                         data-bs-dismiss="modal"
                                     >
                                         Thêm
+                                    </button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+                {/* <!-- Edit Modal user HTML --> */}
+                <div
+                    class="modal fade"
+                    id="editUserModal"
+                    tabindex="-1"
+                    aria-labelledby="exampleModalLabel"
+                    aria-hidden="true"
+                >
+                    <div class="modal-dialog modal-dialog-centered">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h1
+                                    class="modal-title fs-5"
+                                    id="exampleModalLabel"
+                                >
+                                    Chỉnh sửa thông tin
+                                </h1>
+                                <button
+                                    type="button"
+                                    class="btn-close"
+                                    data-bs-dismiss="modal"
+                                    aria-label="Close"
+                                ></button>
+                            </div>
+                            <form onSubmit={(e) => UpdateAccount(e)}>
+                                <div class="modal-body">
+                                    <div class="mb-3">
+                                        <label class="form-label">
+                                            Họ và tên
+                                        </label>
+                                        <input
+                                            type="text"
+                                            class="form-control"
+                                            required
+                                            value={newUser.nameUser}
+                                            name="nameUser"
+                                            onChange={(e) => handleAccountChange(e)}
+                                        ></input>
+                                    </div>
+                                    <div class="mb-3">
+                                        <label class="form-label">Email</label>
+                                        <input
+                                            type="email"
+                                            class="form-control"
+                                            required
+                                            value={newUser.email}
+                                            name="email"
+                                            onChange={(e) => handleAccountChange(e)}
+                                        ></input>
+                                    </div>
+                                    <div class="mb-3">
+                                        <label class="form-label">
+                                            Địa chỉ
+                                        </label>
+                                        <input
+                                            type="text"
+                                            class="form-control"
+                                            required
+                                            value={newUser.address}
+                                            name="address"
+                                            onChange={(e) => handleAccountChange(e)}
+                                        ></input>
+                                    </div>
+                                    <div class="mb-3">
+                                        <label class="form-label">
+                                            Số điện thoại
+                                        </label>
+                                        <input
+                                            type="tel"
+                                            class="form-control"
+                                            required
+                                            value={newUser.phone}
+                                            name="phone"
+                                            onChange={(e) => handleAccountChange(e)}
+                                        ></input>
+                                    </div>
+                                    <div class="mb-3">
+                                        <label class="form-label">
+                                            Password
+                                        </label>
+                                        <input
+                                            type="tel"
+                                            class="form-control"
+                                            required
+                                            value={newUser.password}
+                                            name="password"
+                                            onChange={(e) => handleAccountChange(e)}
+                                        ></input>
+                                    </div>
+                                </div>
+                                <div class="modal-footer">
+                                    <button
+                                        type="button"
+                                        class="btn btn-secondary"
+                                        data-bs-dismiss="modal"
+                                    >
+                                        Huỷ
+                                    </button>
+                                    <button
+                                        type="submit"
+                                        class="btn btn-success"
+                                        data-bs-dismiss="modal"
+                                    >
+                                        Cập nhật
                                     </button>
                                 </div>
                             </form>
