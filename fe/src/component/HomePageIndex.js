@@ -18,24 +18,23 @@ export default function HomePageIndex() {
   const login = (e) => {
     e.preventDefault();
     Axios.get(`${process.env.REACT_APP_LOGIN}?username=${account.username}`)
-      // rs.data.isDelete === "false"
       .then((rs) => {
         if (rs.data.password === account.password) {
-          if (rs.data.area === account.area) {
-            if (rs.data.isDelete === "false") {
-              if (rs.data.role === "user") {
+          if (rs.data.isDelete === "false") {
+            if (rs.data.role === "user") {
+              if (rs.data.area === account.area) {
                 localStorage.setItem("role", "user");
                 window.location.href = "user";
                 localStorage.setItem("username", account.username);
               } else {
-                localStorage.setItem("role", "admin");
-                window.location.href = "admin";
+                alert("Tài khoản sai khu vực");
               }
             } else {
-              alert("Tài khoản hiện tại đang bị khoá");
+              localStorage.setItem("role", "admin");
+              window.location.href = "admin";
             }
           } else {
-            alert("Tài khoản sai khu vực");
+            alert("Tài khoản hiện tại đang bị khoá");
           }
         } else {
           alert("Sai mật khẩu");
@@ -194,11 +193,7 @@ export default function HomePageIndex() {
                     >
                       Huỷ
                     </button>
-                    <button
-                      type="submit"
-                      class="btn btn-success"
-                      data-bs-dismiss="modal"
-                    >
+                    <button type="submit" class="btn btn-success">
                       Đăng nhập
                     </button>
                   </div>
