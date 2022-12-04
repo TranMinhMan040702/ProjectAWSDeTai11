@@ -1,4 +1,3 @@
-/* eslint-disable jsx-a11y/anchor-is-valid */
 import React from "react";
 import { Link } from "react-router-dom";
 export default function Header(props) {
@@ -66,17 +65,17 @@ export default function Header(props) {
                                 </button>
                                 <ul className="dropdown-menu w-100">
                                     <li>
-                                        <a
-                                            className="dropdown-item"
-                                            //href="/me/manager-info"
+                                     <button className="dropdown-item ">
+                                          <a
                                             href="#editUserModal"
                                             class="edit"
                                             data-bs-toggle="modal"
                                             data-bs-target="#editUserModal"
-                                        
                                         >
                                             Quản lý thông tin cá nhân
                                         </a>
+                                        </button>
+                                       
                                     </li>
 
                                     <li>
@@ -99,4 +98,4 @@ export default function Header(props) {
             </nav>
         </header>
     );
-}
+
