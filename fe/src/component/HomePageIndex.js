@@ -19,27 +19,35 @@ export default function HomePageIndex() {
         e.preventDefault();
         Axios.get(`${process.env.REACT_APP_LOGIN}?username=${account.username}`)
             .then((rs) => {
-                console.log(rs.data);
-                if (rs.data.isDelete === "false") {
-                    console.log("ton tai");
+                if (account.role == rs.data.role) {
                     if (rs.data.password === account.password) {
-                        console.log("mat khau dung");
-                        if (rs.data.role == "user") {
-                            localStorage.setItem("role", "user");
-                            window.location.href = "user";
-                            localStorage.setItem("username", account.username);
-                            console.log("user");
+                        if (rs.data.isDelete === "false") {
+                            if (rs.data.role === "user") {
+                                if (rs.data.area === account.area) {
+                                    localStorage.setItem("role", "user");
+                                    window.location.href = "user";
+                                    localStorage.setItem(
+                                        "username",
+                                        account.username
+                                    );
+                                } else {
+                                    alert("Tài khoản sai khu vực");
+                                }
+                            } else {
+                                localStorage.setItem("role", "admin");
+                                window.location.href = "admin";
+                            }
                         } else {
-                            localStorage.setItem("role", "admin");
-                            window.location.href = "admin";
+                            alert("Tài khoản hiện tại đang bị khoá");
                         }
                     } else {
                         alert("Sai mật khẩu");
-                        // window.location.reload(true);
                     }
+                } else {
+                    alert("Tài khoản không đúng vai trò đã chọn");
                 }
             })
-            .catch((err) => console.log(err));
+            .catch((err) => alert("Sai tên đăng nhập"));
     };
     React.useEffect(() => {
         Axios.get(process.env.REACT_APP_GETALLAREA).then((rs) =>
@@ -225,7 +233,6 @@ export default function HomePageIndex() {
                                         <button
                                             type="submit"
                                             class="btn btn-success"
-                                            data-bs-dismiss="modal"
                                         >
                                             Đăng nhập
                                         </button>

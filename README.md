@@ -6,8 +6,8 @@
 - Tương tác dữ liệu của table thông qua API được cung cấp
 
 ## Công nghệ sử dụng
-Client: Html, Css3, Bootstrap, JS <br>
-Server: PHP, AWS Lambda, AWS SQS, AWS EC2 <br>
+Front-End: ReactJs <br>
+Back-End: Lambda <br>
 Database: DynamoDB <br>
 
 ## Thành viên tham gia Project
