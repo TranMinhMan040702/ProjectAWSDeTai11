@@ -24,7 +24,7 @@ export default function HomePageIndex() {
                     console.log("ton tai");
                     if (rs.data.password === account.password) {
                         console.log("mat khau dung");
-                        if (rs.data.role === "user") {
+                        if (rs.data.role == "user") {
                             localStorage.setItem("role", "user");
                             window.location.href = "user";
                             localStorage.setItem("username", account.username);

@@ -16,7 +16,7 @@ exports.handler = async (event, context, callback) => {
 
 function login(event) {
     const params = {
-        TableName: "account",
+        TableName: "users",
         Key: { username: event.queryStringParameters.username },
     };
     return ddb.get(params).promise();
