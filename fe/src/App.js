@@ -25,8 +25,6 @@ function App() {
           <>
             <Route path="/admin" element={<HomePageAdmin />} />
             <Route path="/admin/:slug" element={<Element />} />
-
-            {/* <Route path="/admin" element={<Manager />} /> */}
           </>
         ) : (
           <>

@@ -2,11 +2,10 @@ const AWS = require("aws-sdk");
 const ddb = new AWS.DynamoDB.DocumentClient({ region: "us-east-1" });
 
 exports.handler = async (event, context, callback) => {
-  // TODO implement
-  await getOneEmployeeById(event)
+  await addEmployee(event)
     .then((data) => {
       callback(null, {
-        statusCode: 200,
+        statusCode: 201,
         body: data.Item,
       });
     })
@@ -15,12 +14,17 @@ exports.handler = async (event, context, callback) => {
     });
 };
 
-function getOneEmployeeById(event) {
+function addEmployee(event) {
   const params = {
     TableName: "employees",
-    Key: {
+    Item: {
       id: event.queryStringParameters.id,
+      fullname: event.queryStringParameters.fullname,
+      address: event.queryStringParameters.address,
+      area: event.queryStringParameters.area,
+      phone: event.queryStringParameters.phone,
+      isDeleted: event.queryStringParameters.isDeleted,
     },
   };
-  return ddb.get(params).promise();
+  return ddb.put(params).promise();
 }
