@@ -6,11 +6,23 @@
 - Tương tác dữ liệu của table thông qua API được cung cấp
 
 ## Công nghệ sử dụng
-Front-End: ReactJs <br>
-Back-End: Lambda <br>
-Database: DynamoDB <br>
+- Front-End: ReactJs <br>
+- Back-End: Lambda <br>
+- Database: DynamoDB <br>
 
 ## Thành viên tham gia Project
-Lê Hải Đăng - 20110243 <br>
-Trần Minh Mẫn - 20110301 <br>
-Trần Công Minh - 20110677 <br>
+- Lê Hải Đăng - 20110243 <br>
+- Trần Minh Mẫn - 20110301 <br>
+- Trần Công Minh - 20110677 <br>
+
+## Triển khai Project
+- Demo cài đặt local + AWS: https://youtu.be/ZNDX_E-ebaU
+- Demo trên S3: https://youtu.be/B-HV4kIFkVI
+
+## Kết quả đạt được
+- Cài đặt các giao diện với React Js
+- Cài đặt phía BackEnd với Lambda function url
+- Thêm, sửa, xóa các item trong DynamoDB
+- Host web lên S3
+
+ 
