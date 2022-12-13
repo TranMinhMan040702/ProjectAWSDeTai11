@@ -57,5 +57,6 @@ export const handler = async (event, response) => {
       body: JSON.stringify('"Tên bảng đã tồn tại"'),
     };
   }
+
   return response;
 };
