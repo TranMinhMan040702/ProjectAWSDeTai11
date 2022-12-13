@@ -54,13 +54,17 @@ export default function HomePage() {
 
   const Add = (e) => {
     e.preventDefault();
-    Axios.post(`${process.env.REACT_APP_CREATE_TABLE}`, newTable)
-      .then((rs) => {
-        alert(rs.data);
-        setChecked((prev) => (prev = !prev));
-        document.getElementById("close-modal").click();
-      })
-      .catch((err) => alert(err.response.data));
+    if (newTable.partitionkey !== newTable.sortkey) {
+      Axios.post(`${process.env.REACT_APP_CREATE_TABLE}`, newTable)
+        .then((rs) => {
+          alert(rs.data);
+          setChecked((prev) => (prev = !prev));
+          document.getElementById("close-modal").click();
+        })
+        .catch((err) => alert(err.response.data));
+    } else {
+      alert("Hai khoá trùng nhau");
+    }
   };
 
   const DeleteOne = (tablename) => {
@@ -98,7 +102,7 @@ export default function HomePage() {
 
   return (
     <>
-      <Header data={newUser} />
+      <Header />
       <div>
         <div class="container-xl">
           <div class="table-responsive">
@@ -174,7 +178,11 @@ export default function HomePage() {
                               <label for="checkbox1"></label>
                             </span>
                           </td>
-                          <td>{item.tablename}</td>
+                          <td>
+                            <a href={`/table/${item.tablename}`}>
+                              {item.tablename}
+                            </a>
+                          </td>
                           <td>{item.AttributeDefinitions[0].AttributeName}</td>
                           <td>{item.AttributeDefinitions[0].AttributeType}</td>
                           <td>{item.AttributeDefinitions[1].AttributeName}</td>

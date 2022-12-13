@@ -202,38 +202,72 @@ table.table .avatar {
   box-shadow: none;
   background: #ddd;
 }
-/* Modal styles */
-.modal .modal-dialog {
-  max-width: 400px;
+
+
+//LOADING
+.spinner-box {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100vh;
+  z-index: 15;
+  display: flex;
+  justify-content: center;
+  align-items: center;
 }
-.modal .modal-header,
-.modal .modal-body,
-.modal .modal-footer {
-  padding: 20px 30px;
+
+.blue-orbit {
+  width: 330px;
+  height: 330px;
+  border: 1px solid #91daffa5;
+  -webkit-animation: spin3D 3s linear .2s infinite;
 }
-.modal .modal-content {
-  border-radius: 3px;
-  font-size: 14px;
+
+.leo {
+  position: absolute;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  border-radius: 50%;
 }
-.modal .modal-footer {
-  background: #ecf0f1;
-  border-radius: 0 0 3px 3px;
+
+.green-orbit {
+  width: 240px;
+  height: 240px;
+  border: 1px solid #91ffbfa5;
+  -webkit-animation: spin3D 2s linear 0s infinite;
 }
-.modal .modal-title {
-  display: inline-block;
+
+.red-orbit {
+  width: 180px;
+  height: 180px;
+  border: 1px solid #ffca91a5;
+  -webkit-animation: spin3D 1s linear 0s infinite;
 }
-.modal .form-control {
-  border-radius: 2px;
-  box-shadow: none;
-  border-color: #dddddd;
+.white-orbit {
+  width: 120px;
+  height: 120px;
+  border: 2px solid #ffffff;
+  -webkit-animation: spin3D 10s linear 0s infinite;
 }
-.modal textarea.form-control {
-  resize: vertical;
+.w1 {
+  transform: rotate3D(1, 1, 1, 90deg);
 }
-.modal .btn {
-  border-radius: 2px;
-  min-width: 100px;
+
+.w2 {
+  transform: rotate3D(1, 2, .5, 90deg);
 }
-.modal form label {
-  font-weight: normal;
+
+.w3 {
+  transform: rotate3D(.5, 1, 2, 90deg);
+}
+
+@keyframes spin3D {
+  from {
+    transform: rotate3d(.5,.5,.5, 360deg);
+  }
+  to{
+    transform: rotate3d(0deg);
+  }
 }
