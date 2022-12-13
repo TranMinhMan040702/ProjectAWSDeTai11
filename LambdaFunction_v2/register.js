@@ -32,31 +32,9 @@ export { ddbDocClient };
 import { PutCommand } from "@aws-sdk/lib-dynamodb";
 
 export const handler = async (event, response) => {
-  // const body = JSON.parse(event.body);
-  const body = event;
-  const listEmail = [];
-  const listUserName = [];
-  try {
-    const Record = await ddbClient.send(
-      new ScanCommand({ TableName: "UserTable" })
-    );
-    for (let item of Record.Items) {
-      // listID.push(item['UserID']['N']);
-      if (body.username === item["username"]["S"]) {
-        listUserName.push(body.username);
-      }
-      if (body.email === item["email"]["S"]) {
-        listEmail.push(body.email);
-      }
-    }
+  const body = JSON.parse(event.body);
 
-    if (listUserName.length !== 0) {
-      throw new Error("Tên tài khoản đã tồn tại");
-    }
-    if (listEmail.length !== 0) {
-      throw new Error("Email đã tồn tại");
-    }
-    // const newRecordID = Math.max(...listID.map(id => Number(id))) + 1;
+  try {
     const params = {
       TableName: "UserTable",
       Item: {
@@ -73,18 +51,13 @@ export const handler = async (event, response) => {
       body: JSON.stringify({
         username: body.username,
         password: body.password,
+        email: body.email,
       }),
     };
   } catch (err) {
-    var message = "";
-    if (listUserName.length !== 0) {
-      message = "Tên tài khoản đã tồn tại";
-    } else if (listEmail.length !== 0) {
-      message = "Email đã tồn tại";
-    }
     response = {
       statusCode: 400,
-      body: JSON.stringify(message),
+      body: JSON.stringify(err),
     };
   }
 
