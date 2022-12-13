@@ -7,6 +7,7 @@ export default function DetailPage() {
   const [arrTitle, setArrTitle] = React.useState([]);
   const [contentRow, setContentRow] = React.useState([]);
   const [checkAdd, setCheckAdd] = React.useState(true);
+  const [checkList, setCheckList] = React.useState(true);
   const [key, setKey] = React.useState({});
   const [listItem, setListItem] = React.useState([]);
   const [keyItem, setKeyItem] = React.useState([]);
@@ -44,6 +45,9 @@ export default function DetailPage() {
     })
       .then((rs) => {
         setListItem(rs.data);
+        if (rs.data.length == 0) {
+          setCheckList((prev) => (prev = !prev));
+        }
         var arrTitle = [];
         rs.data.map((item) => {
           arrTitle = arrTitle.concat(Object.keys(item));
@@ -53,34 +57,55 @@ export default function DetailPage() {
       .catch((err) => console.log(err));
   }, [checkAdd]);
   React.useEffect(() => {
-    listItem.length == 0 &&
-      Axios.post(process.env.REACT_APP_ADD_OR_UPDATE_ITEM, {
-        tablename: slug,
-        item: key,
+    Axios.post(process.env.REACT_APP_ADD_OR_UPDATE_ITEM, {
+      tablename: slug,
+      item: key,
+    })
+      .then((rs) => {
+        setCheckAdd((prev) => (prev = !prev));
       })
-        .then((rs) => {
-          setCheckAdd((prev) => (prev = !prev));
-        })
-        .catch((err) => {
-          // window.location.reload();
-          console.log(err);
-        });
-  }, [key]);
-  const AddColumn = (e, name) => {
-    var tempId = id;
+      .catch((err) => {
+        console.log(err);
+      });
+  }, [checkList]);
+  const AddColumn = (e, name, item) => {
+    // const item = { name: "s", value: "d" };
     if (name == "update") {
-      tempId = id_update;
-    }
-
-    $(`#main-area${name}`).append(
-      `<div class="row" id="new_${tempId}">
+      $(`#main-area${name}`).append(
+        `<div class="row" id="new_${id_update}">
+          <div class="mb-3 col-6">
+            <label class="form-label">Tên cột: </label>
+            <input
+            type="text"
+            class="form-control"
+            required
+            value="${item.name || ""}"
+            id="${name}input_name_${id_update}"
+            ></input>
+          </div>
+          <div class="mb-3 col-6">
+            <label class="form-label">Giá trị: </label>
+            <input
+              type="text"
+              class="form-control"
+              required
+              value="${item.value || ""}"
+              id="${name}input_value_${id_update}"
+            ></input>
+          </div>
+         `
+      );
+      setId_update((prev) => prev + 1);
+    } else {
+      $(`#main-area`).append(
+        `<div class="row" id="new_${id}">
         <div class="mb-3 col-6">
           <label class="form-label">Tên cột: </label>
           <input
             type="text"
             class="form-control"
             required
-            id="${name}input_name_${tempId}"
+            id="input_name_${id}"
           ></input>
         </div>
         <div class="mb-3 col-6">
@@ -89,14 +114,11 @@ export default function DetailPage() {
             type="text"
             class="form-control"
             required
-            id="${name}input_value_${tempId}"
+            id="input_value_${id}"
           ></input>
         </div>
        `
-    );
-    if (name == "update") {
-      setId_update((prev) => prev + 1);
-    } else {
+      );
       setId((prev) => prev + 1);
     }
   };
@@ -158,7 +180,9 @@ export default function DetailPage() {
       })
         .then((rs) => {
           setCheckAdd((prev) => (prev = !prev));
-          document.getElementById("close").click();
+          Object.values($("button[id *='close-']")).map((item) => {
+            console.log(item.click());
+          });
         })
         .catch((err) => {
           console.log(err);
@@ -185,6 +209,36 @@ export default function DetailPage() {
     } else {
       alert("Bạn phải để lại ít nhất 01 hàng");
     }
+  };
+
+  const ClickPencil = (props) => {
+    const container = document.getElementById("main-areaupdate");
+
+    container.replaceChildren();
+    var arr = [];
+    Object.entries(props).map((item, index) => {
+      arr.push({
+        name: [item[0]].toString(),
+        value: Object.values(item[1]).toString(),
+      });
+    });
+    setContentRow(arr);
+    setTimeout(() => {
+      arr.map((item, index) => {
+        if (index > 1) AddColumn("", "update", item);
+      });
+    }, 100);
+  };
+
+  const handleSetState = (field, oldItem, newItem) => {
+    const newState = contentRow.map((obj) => {
+      if (obj[field] === oldItem) {
+        return { ...obj, [field]: newItem };
+      }
+      return obj;
+    });
+
+    setContentRow(newState);
   };
   return (
     <>
@@ -248,20 +302,6 @@ export default function DetailPage() {
                               }
                             }
                             return html;
-                            // return Object.entries(items).map((item) => {
-                            //   if (item[0] == arrItem) {
-                            //     return <td>{Object.values(item[1])}</td>;
-                            //   }
-
-                            // if (Object.keys(items).includes(item)) {
-                            //   return (
-                            //     <td>
-                            //       {Object.values(Object.values(items)[item])}
-                            //     </td>
-                            //   );
-                            // } else {
-                            //   return <td></td>;
-                            // }
                           })}
                           <td>
                             <a
@@ -270,15 +310,7 @@ export default function DetailPage() {
                               data-bs-toggle="modal"
                               data-bs-target="#updateTableModal"
                               onClick={(e) => {
-                                setContentRow(items);
-                                setItem([
-                                  Object.values(
-                                    Object.values(items)[0]
-                                  ).toString(),
-                                  Object.values(
-                                    Object.values(items)[1]
-                                  ).toString(),
-                                ]);
+                                ClickPencil(items);
                               }}
                             >
                               <i
@@ -337,7 +369,7 @@ export default function DetailPage() {
                   class="btn-close"
                   data-bs-dismiss="modal"
                   aria-label="Close"
-                  id="close"
+                  id="close-add"
                 ></button>
               </div>
               <form onSubmit={(e) => AddOrUpdate(e, "")}>
@@ -421,7 +453,6 @@ export default function DetailPage() {
                       type="button"
                       class="btn btn-secondary me-2"
                       data-bs-dismiss="modal"
-                      id="close-modal"
                     >
                       Huỷ
                     </button>
@@ -445,113 +476,59 @@ export default function DetailPage() {
                   class="btn-close"
                   data-bs-dismiss="modal"
                   aria-label="Close"
-                  id="close"
+                  id="close-add"
                 ></button>
               </div>
               <form onSubmit={(e) => AddOrUpdate(e, "update")}>
                 <div class="modal-body">
-                  <div id="main-areaupdate">
-                    {Object.values(contentRow).length > 0 && (
-                      <>
-                        <div className="row">
-                          <div class="mb-3 col-6">
-                            <label class="form-label">
-                              Tên khoá phân vùng:{" "}
-                            </label>
-                            {listItem[0] && (
-                              <input
-                                disabled
-                                type="text"
-                                class="form-control"
-                                value={Object.keys(listItem[0])[0]}
-                                required
-                              ></input>
-                            )}
-                          </div>
-                          <div class="mb-3 col-6">
-                            <label class="form-label">
-                              Giá trị khoá phân vùng:{" "}
-                            </label>
-                            <input
-                              disabled
-                              type="text"
-                              class="form-control"
-                              id="updatevalue-p"
-                              value={Object.values(
-                                Object.values(contentRow)[0]
-                              ).toString()}
-                              required
-                            ></input>
-                          </div>
-                        </div>
-                        <div className="row">
-                          <div class="mb-3 col-6">
-                            <label class="form-label">Tên khoá phụ: </label>
-                            {listItem[0] && (
-                              <input
-                                disabled
-                                type="text"
-                                class="form-control"
-                                value={Object.keys(listItem[0])[1]}
-                                required
-                              ></input>
-                            )}
-                          </div>
-                          <div class="mb-3 col-6">
-                            <label class="form-label">Giá trị khoá phụ: </label>
-                            <input
-                              disabled
-                              type="text"
-                              class="form-control"
-                              id="updatevalue-s"
-                              value={Object.values(
-                                Object.values(contentRow)[1]
-                              ).toString()}
-                              required
-                            ></input>
-                          </div>
-                        </div>
-                      </>
-                    )}
-                    {Object.entries(contentRow).map((item, index) => {
-                      if (index > 1) {
-                        return (
-                          <div class="row">
-                            <div class="mb-3 col-6">
-                              <label class="form-label">Tên cột: </label>
-                              <input
-                                type="text"
-                                class="form-control"
-                                required
-                                value={1}
-                              ></input>
+                  <div>
+                    {contentRow &&
+                      contentRow.map((item, index) => {
+                        var nameColumn = "",
+                          valueColumn = "",
+                          id_value = "updatevalue-" + Math.random() + "";
+                        if (index < 2) {
+                          if (index == 0) {
+                            nameColumn = "Tên khoá phân vùng:";
+                            valueColumn = "Giá trị khoá phân vùng:";
+                          } else {
+                            nameColumn = "Tên khoá phụ:";
+                            valueColumn = "Giá trị khoá phụ:";
+                          }
+                          return (
+                            <div class="row">
+                              <div class="mb-3 col-6">
+                                <label class="form-label">{nameColumn}</label>
+                                <input
+                                  disabled
+                                  type="text"
+                                  class="form-control"
+                                  required
+                                  value={item.name}
+                                ></input>
+                              </div>
+                              <div class="mb-3 col-6">
+                                <label class="form-label">{valueColumn}</label>
+                                <input
+                                  disabled
+                                  type="text"
+                                  class="form-control"
+                                  required
+                                  id={id_value}
+                                  value={item.value}
+                                ></input>
+                              </div>
                             </div>
-                            <div class="mb-3 col-6">
-                              <label class="form-label">Giá trị: </label>
-                              <input
-                                type="text"
-                                class="form-control"
-                                required
-                                value={Object.values(item[1])}
-                                onChange={(e) => {
-                                  setContentRow({
-                                    ...contentRow,
-                                    [item[0]]: { S: e.target.value },
-                                  });
-                                }}
-                              ></input>
-                            </div>
-                          </div>
-                        );
-                      }
-                    })}
-                    {console.log(contentRow)}
+                          );
+                        }
+                      })}
                   </div>
+                  <div id="main-areaupdate"></div>
                   <div className="row">
                     <button
                       type="button"
                       class="btn btn-secondary col-3 me-2"
-                      onClick={(e) => AddColumn(e, "update")}
+                      onClick={(e) => AddColumn(e, "update", "")}
                     >
                       Thêm cột
                     </button>
@@ -569,7 +546,6 @@ export default function DetailPage() {
                     type="button"
                     class="btn btn-secondary me-2"
                     data-bs-dismiss="modal"
-                    id="close-modal"
                   >
                     Huỷ
                   </button>
