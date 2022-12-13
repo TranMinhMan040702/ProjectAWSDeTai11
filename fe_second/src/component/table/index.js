@@ -1,3 +1,3 @@
 import HomePage from "./HomePage";
-
-export { HomePage };
+import DetailPage from "./DetailPage";
+export { HomePage, DetailPage };
