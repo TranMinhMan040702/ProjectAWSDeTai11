@@ -19,7 +19,7 @@ export const handler = async (event, response) => {
   } catch (err) {
     response = {
       statusCode: 400,
-      body: JSON.stringify("Can not get Item! " + err),
+      body: JSON.stringify("Không thể lấy item"),
     };
   }
   return response;
