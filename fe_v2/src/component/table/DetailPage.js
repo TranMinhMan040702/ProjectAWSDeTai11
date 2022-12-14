@@ -6,9 +6,6 @@ import Axios from "axios";
 export default function DetailPage() {
   const [arrTitle, setArrTitle] = React.useState([]);
   const [contentRow, setContentRow] = React.useState([]);
-  const [checkAdd, setCheckAdd] = React.useState(true);
-  const [checkList, setCheckList] = React.useState(true);
-  const [key, setKey] = React.useState({});
   const [listItem, setListItem] = React.useState([]);
   const [keyItem, setKeyItem] = React.useState([]);
   const [item, setItem] = React.useState(["", ""]);
@@ -26,50 +23,38 @@ export default function DetailPage() {
       .then((rs) => {
         rs.data.map((item) => {
           if (item.tablename == slug) {
-            setKey({
-              [item.AttributeDefinitions[0].AttributeName]: "Example",
-              [item.AttributeDefinitions[1].AttributeName]: "Example",
-            });
             setKeyItem([
               item.AttributeDefinitions[0].AttributeName,
               item.AttributeDefinitions[1].AttributeName,
             ]);
+            getAllItemByTableName(
+              item.AttributeDefinitions[0].AttributeName,
+              item.AttributeDefinitions[1].AttributeName
+            );
           }
         });
       })
       .catch((err) => console.log(err));
   }, []);
-  React.useEffect(() => {
+
+  const getAllItemByTableName = (partition, soft) => {
     Axios.post(`${process.env.REACT_APP_GET_ALL_ITEM_BY_TABLE_NAME}`, {
       tablename: slug,
     })
       .then((rs) => {
         setListItem(rs.data);
-        if (rs.data.length == 0) {
-          setCheckList((prev) => (prev = !prev));
-        }
-        var arrTitle = [];
-        rs.data.map((item) => {
-          arrTitle = arrTitle.concat(Object.keys(item));
+        var arrTitle = [partition, soft];
+        rs.data.map((items) => {
+          Object.keys(items).map((item) => {
+            if (!arrTitle.includes(item)) arrTitle.push(item);
+          });
         });
-        setArrTitle([...new Set(arrTitle)]);
+        setArrTitle(arrTitle);
       })
       .catch((err) => console.log(err));
-  }, [checkAdd]);
-  React.useEffect(() => {
-    Axios.post(process.env.REACT_APP_ADD_OR_UPDATE_ITEM, {
-      tablename: slug,
-      item: key,
-    })
-      .then((rs) => {
-        setCheckAdd((prev) => (prev = !prev));
-      })
-      .catch((err) => {
-        console.log(err);
-      });
-  }, [checkList]);
+  };
+
   const AddColumn = (e, name, item) => {
-    // const item = { name: "s", value: "d" };
     if (name == "update") {
       $(`#main-area${name}`).append(
         `<div class="row" id="new_${id_update}">
@@ -179,7 +164,7 @@ export default function DetailPage() {
         item: ob,
       })
         .then((rs) => {
-          setCheckAdd((prev) => (prev = !prev));
+          getAllItemByTableName(keyItem[0], keyItem[1]);
           Object.values($("button[id *='close-']")).map((item) => {
             console.log(item.click());
           });
@@ -202,8 +187,9 @@ export default function DetailPage() {
         },
       })
         .then((rs) => {
-          setCheckAdd((prev) => (prev = !prev));
-          // alert(rs);
+          getAllItemByTableName(keyItem[0], keyItem[1]);
+
+          alert(rs.data);
         })
         .catch((err) => console.log(err));
     } else {
@@ -213,14 +199,27 @@ export default function DetailPage() {
 
   const ClickPencil = (props) => {
     const container = document.getElementById("main-areaupdate");
-
     container.replaceChildren();
-    var arr = [];
+    var arr = [
+      {
+        name: keyItem[0],
+        value: Object.values(props[keyItem[0]]).toString(),
+      },
+      {
+        name: keyItem[1],
+        value: Object.values(props[keyItem[1]]).toString(),
+      },
+    ];
     Object.entries(props).map((item, index) => {
-      arr.push({
-        name: [item[0]].toString(),
-        value: Object.values(item[1]).toString(),
-      });
+      if (
+        [item[0]].toString() != keyItem[0] &&
+        [item[0]].toString() != keyItem[1]
+      ) {
+        arr.push({
+          name: [item[0]].toString(),
+          value: Object.values(item[1]).toString(),
+        });
+      }
     });
     setContentRow(arr);
     setTimeout(() => {
@@ -230,16 +229,6 @@ export default function DetailPage() {
     }, 100);
   };
 
-  const handleSetState = (field, oldItem, newItem) => {
-    const newState = contentRow.map((obj) => {
-      if (obj[field] === oldItem) {
-        return { ...obj, [field]: newItem };
-      }
-      return obj;
-    });
-
-    setContentRow(newState);
-  };
   return (
     <>
       <input type="hidden" value="1" id="total_chq"></input>
@@ -269,8 +258,11 @@ export default function DetailPage() {
               <table class="table table-striped table-hover">
                 <thead>
                   <tr className="text-center">
+                    {/* <th>{keyItem[0]}</th>
+                    <th>{keyItem[1]}</th> */}
                     {arrTitle &&
                       arrTitle.map((item) => {
+                        // if (item != keyItem[0] && item != keyItem[1])
                         return <th>{item}</th>;
                       })}
                     <th>Hành động</th>
@@ -328,12 +320,8 @@ export default function DetailPage() {
                               data-bs-target="#deleteTableModal"
                               onClick={(e) => {
                                 setItem([
-                                  Object.values(
-                                    Object.values(items)[0]
-                                  ).toString(),
-                                  Object.values(
-                                    Object.values(items)[1]
-                                  ).toString(),
+                                  Object.entries(items[keyItem[0]])[0][1],
+                                  Object.entries(items[keyItem[1]])[0][1],
                                 ]);
                                 setTitleModal({
                                   main: "Xoá hàng",
@@ -378,12 +366,12 @@ export default function DetailPage() {
                     <div className="row">
                       <div class="mb-3 col-6">
                         <label class="form-label">Tên khoá phân vùng: </label>
-                        {listItem[0] && (
+                        {keyItem && (
                           <input
                             disabled
                             type="text"
                             class="form-control"
-                            value={Object.keys(listItem[0])[0]}
+                            value={keyItem[0]}
                             id="key-p"
                             required
                           ></input>
@@ -404,12 +392,12 @@ export default function DetailPage() {
                     <div className="row">
                       <div class="mb-3 col-6">
                         <label class="form-label">Tên khoá phụ: </label>
-                        {listItem[0] && (
+                        {keyItem && (
                           <input
                             disabled
                             type="text"
                             class="form-control"
-                            value={Object.keys(listItem[0])[1]}
+                            value={keyItem[1]}
                             required
                             id="key-s"
                           ></input>

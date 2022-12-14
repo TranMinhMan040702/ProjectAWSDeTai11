@@ -44,12 +44,12 @@ export const handler = async (event, response) => {
     const data = await ddbDocClient.send(new PutCommand(params(body)));
     response = {
       statusCode: 200,
-      body: JSON.stringify("Add item successfully!"),
+      body: JSON.stringify("Thêm thành công!"),
     };
   } catch (err) {
     response = {
       statusCode: 400,
-      body: JSON.stringify("Add item failed!!! " + err),
+      body: JSON.stringify("Thêm thất bại!"),
     };
   }
 
