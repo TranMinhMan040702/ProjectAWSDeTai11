@@ -16,8 +16,9 @@
 - Trần Công Minh - 20110677 <br>
 
 ## Triển khai Project
-- Demo cài đặt local + AWS: https://youtu.be/ZNDX_E-ebaU
+- Demo cài đặt local + AWS: https://youtu.be/jpsyhNkP3wU
 - Demo trên S3: https://youtu.be/B-HV4kIFkVI
+- Clone và chạy ở loacl: https://youtu.be/C_YowbhphOU
 
 ## Kết quả đạt được
 - Cài đặt các giao diện với React Js
