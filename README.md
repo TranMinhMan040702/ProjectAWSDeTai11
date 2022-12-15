@@ -17,8 +17,9 @@
 
 ## Triển khai Project
 - Demo cài đặt local + AWS: https://youtu.be/jpsyhNkP3wU
-- Demo trên S3: https://youtu.be/B-HV4kIFkVI
 - Clone và chạy ở loacl: https://youtu.be/C_YowbhphOU
+- Demo trên S3 lần 1: https://youtu.be/B-HV4kIFkVI
+- Demo trên S3 lần 2: https://youtu.be/kf2UhZ1WQSc
 
 ## Kết quả đạt được
 - Cài đặt các giao diện với React Js
